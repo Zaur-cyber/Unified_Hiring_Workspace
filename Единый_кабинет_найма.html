@@ -1,0 +1,857 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Единый кабинет найма компании X — решение кейса</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/base.css">
+<style>
+  .doc-tabs {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; flex-wrap: wrap; gap: 0.4rem;
+    max-width: var(--maxw-page); margin: 0 auto; padding: 0.75rem 1.5rem;
+    background: color-mix(in srgb, var(--ground) 92%, transparent);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--border);
+  }
+  .doc-tab {
+    font-family: var(--font-body); font-size: 0.9rem; color: var(--ink-muted);
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 0.4rem 0.8rem; cursor: pointer; display: inline-flex; align-items: baseline; gap: 0.45rem;
+    transition: border-color .15s, color .15s;
+  }
+  .doc-tab:hover { border-color: var(--accent); }
+  .doc-tab .tnum { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: .08em; color: var(--accent); }
+  .doc-tab[aria-selected="true"] { color: var(--ink); border-color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+  .tab-link { text-decoration: none; color: #fff; background: var(--accent); border-color: var(--accent); }
+  .tab-link .tnum { color: #fff; }
+  .tab-link:hover { filter: brightness(1.08); }
+  .doc-panel { max-width: var(--maxw-page); margin: 0 auto; padding: 1.5rem; }
+  .doc-panel .doc-head { margin-top: 0; }
+  @media print {
+    .doc-tabs { display: none; }
+    .doc-panel[hidden] { display: block !important; }
+    .doc-panel { padding: 0; break-before: page; }
+    .doc-panel:first-of-type { break-before: auto; }
+  }
+</style>
+</head>
+<body>
+<nav class="doc-tabs" role="tablist" aria-label="Документы кейса">
+    <button role="tab" class="doc-tab" id="tab-d00" aria-controls="d00" data-target="d00"><span class="tnum">◆</span>Обзор</button>
+    <button role="tab" class="doc-tab" id="tab-d01" aria-controls="d01" data-target="d01"><span class="tnum">01</span>As-is / To-be</button>
+    <button role="tab" class="doc-tab" id="tab-d02" aria-controls="d02" data-target="d02"><span class="tnum">02</span>CJM рекрутера</button>
+    <button role="tab" class="doc-tab" id="tab-d03" aria-controls="d03" data-target="d03"><span class="tnum">03</span>Бэклог</button>
+    <button role="tab" class="doc-tab" id="tab-d04" aria-controls="d04" data-target="d04"><span class="tnum">04</span>RICE и MVP</button>
+    <a class="doc-tab tab-link" href="prototype/index.html"><span class="tnum">▶</span>Прототип</a>
+</nav>
+<main>
+  <section class="doc-panel" id="d00" role="tabpanel" aria-labelledby="tab-d00" hidden>
+
+  <header class="doc-head">
+    <span class="kicker">Продуктовый кейс · дискавери + прототип</span>
+    <h1>Единый кабинет найма компании X</h1>
+  </header>
+
+  <div class="callout info">
+    <span class="tag">Как читать</span>
+    <p>Документы 01–04 — разбор кейса по шагам, переключаются вкладками выше. Прототип —
+      кликабельная модель ключевого экрана (воронка кандидатов).</p>
+  </div>
+
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Вкладка</th><th>О чём</th></tr></thead>
+    <tbody>
+      <tr><td><a href="#d01">01 · As-is / To-be</a></td><td>Роли, две swim lane диаграммы, 5 гэпов и ручных передач, карта «гэп → to-be».</td></tr>
+      <tr><td><a href="#d02">02 · CJM рекрутера</a></td><td>8 этапов от «получил вакансию» до «передал на онбординг», кривая эмоций, инсайты.</td></tr>
+      <tr><td><a href="#d03">03 · Бэклог</a></td><td>26 user stories по 6 эпикам с критериями приёмки и трассировкой к гэпам.</td></tr>
+      <tr><td><a href="#d04">04 · RICE и MVP</a></td><td>Метод, расчётная таблица, гейт сквозного пути, шорт-лист MVP и метрики успеха.</td></tr>
+      <tr><td><a href="prototype/index.html">▶ Прототип</a></td><td>6 кликабельных экранов: заявка → согласование → карточка вакансии → воронка → карточка кандидата → scorecard → оффер и чек-лист онбординга.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p class="footnote">Дальше: <a href="#d01">01 · As-is / To-be</a> · <a href="prototype/index.html">прототип</a></p>
+
+  </section>
+  <section class="doc-panel" id="d01" role="tabpanel" aria-labelledby="tab-d01" hidden>
+
+  <header class="doc-head">
+    <span class="kicker">Кейс «Кабинет найма» · документ 01</span>
+    <h1>As-is / To-be workflow</h1>
+  </header>
+
+  <p class="lede">Найм в компании X держится на людях, а не на инструменте. Единого источника
+    правды (single source of truth) по вакансии нет: заявку заводят письмом, воронку рекрутер ведёт
+    в личном Excel, фидбэк с интервью остаётся в чатах.
+    Автоматизации нет ни на одном стыке — ни маршрутов согласования, ни автопереходов по статусам,
+    ни SLA-таймеров и напоминаний. Каждый переход между ролями (HM → согласующие → рекрутер →
+    интервьюеры → HRBP) — это ручной пинг, поэтому статус вакансии не виден целиком.</p>
+
+  <h2>Роли в процессе</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Роль</th><th>Зона ответственности</th><th>Что делает руками сейчас</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Нанимающий менеджер (HM)</strong></td><td>Формулирует потребность, создаёт заявку, проводит интервью, принимает решение по кандидату</td><td>Пишет заявку письмом, пингует рекрутера в чате, шлёт мнение об интервью текстом</td></tr>
+      <tr><td><strong>Согласующие</strong><br>(руководитель HM, финансы / C&amp;B — Compensation &amp; Benefits, команда по компенсациям и льготам)</td><td>Подтверждают потребность против оргштатки и бюджета, согласуют вилку</td><td>Отвечают «ок» в цепочке писем</td></tr>
+      <tr><td><strong>Рекрутер</strong></td><td>Публикация, сорсинг, скрининг, координация интервью, сбор фидбэка, оффер</td><td>Ведёт кандидатов в Excel, вручную собирает фидбэк, дублирует статусы в чаты</td></tr>
+      <tr><td><strong>HR-партнёр (HRBP)</strong></td><td>Контроль процесса и SLA, запуск онбординга, адаптация на выходе</td><td>Заводит задачи на IT / доступы / рабочее место по памяти после оффера</td></tr>
+      <tr><td><strong>Кандидат</strong> <span class="badge">внешний актор</span></td><td>Не пользователь кабинета. Его ощущение скорости и прозрачности — метрика</td><td>—</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>По чему меряем процесс</h2>
+  <p>Четыре метрики, которые кабинет должен сдвинуть. Первые две — результат процесса,
+    вторые две — его переносимость участниками и кандидатом.</p>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Метрика</th><th>Что показывает</th><th>Как считаем</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Time to fill</strong></td><td>Скорость сквозного процесса — от открытия вакансии до выхода сотрудника, включая согласование заявки и онбординг</td><td>Календарные дни между «вакансия открыта» и «первый рабочий день», медиана по закрытым за период</td></tr>
+      <tr><td><strong>% прошедших испытательный срок</strong></td><td>Качество найма — прокси quality of hire и обратная сторона ранней текучести</td><td>Доля нанятых, успешно завершивших испытательный срок, от всех вышедших за период</td></tr>
+      <tr><td><strong>Удовлетворённость кандидата процессом</strong></td><td>Прозрачность и скорость глазами кандидата — прямой драйвер candidate drop-off и принятия оффера</td><td>Опрос после финала (принят или отказ), CSAT/NPS по 5-балльной шкале</td></tr>
+      <tr><td><strong>Удовлетворённость участников процессом</strong></td><td>Переносимость процесса для рекрутера, HM и HRBP — сколько ручной работы и «догонок» он требует</td><td>Периодический внутренний опрос трёх ролей, CSAT по 5-балльной шкале + доля ручных действий</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>As-is — процесс сегодня</h2>
+  <figure class="diagram">
+    <svg class="swimlane" viewBox="0 0 1225 362" role="img" aria-label="Swim lane диаграмма текущего процесса найма: пять дорожек ролей и девять этапов, все передачи между ролями ручные, пять отмеченных гэпов">
+      <defs>
+        <marker id="a-hand" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><polygon points="0,0 8,4 0,8" fill="#c0392b"/></marker>
+      </defs>
+      <!-- сетка дорожек -->
+      <g class="swimlane">
+        <line class="lane-sep" x1="10" y1="30" x2="1215" y2="30"/>
+        <line class="lane-sep" x1="10" y1="94" x2="1215" y2="94"/>
+        <line class="lane-sep" x1="10" y1="158" x2="1215" y2="158"/>
+        <line class="lane-sep" x1="10" y1="222" x2="1215" y2="222"/>
+        <line class="lane-sep" x1="10" y1="286" x2="1215" y2="286"/>
+        <line class="lane-sep" x1="10" y1="350" x2="1215" y2="350"/>
+        <line class="lane-sep" x1="135" y1="10" x2="135" y2="350"/>
+        <!-- подписи дорожек -->
+        <text class="lane-label" x="16" y="66">HM</text>
+        <text class="lane-label" x="16" y="123">Согласу-</text><text class="lane-label" x="16" y="135">ющие</text>
+        <text class="lane-label" x="16" y="194">Рекрутер</text>
+        <text class="lane-label" x="16" y="258">HRBP</text>
+        <text class="lane-label" x="16" y="322">Система</text>
+        <!-- подписи этапов -->
+        <text class="stage-label" text-anchor="middle" x="195" y="22">Потребность</text>
+        <text class="stage-label" text-anchor="middle" x="315" y="22">Заявка</text>
+        <text class="stage-label" text-anchor="middle" x="435" y="22">Согласование</text>
+        <text class="stage-label" text-anchor="middle" x="555" y="22">Публикация</text>
+        <text class="stage-label" text-anchor="middle" x="675" y="22">Сорсинг / скрининг</text>
+        <text class="stage-label" text-anchor="middle" x="795" y="22">Интервью</text>
+        <text class="stage-label" text-anchor="middle" x="915" y="22">Фидбэк</text>
+        <text class="stage-label" text-anchor="middle" x="1035" y="22">Оффер</text>
+        <text class="stage-label" text-anchor="middle" x="1155" y="22">Онбординг</text>
+
+        <!-- узлы -->
+        <g><rect class="node-box" x="143" y="44" width="104" height="36" rx="5"/><text class="node-text" text-anchor="middle" x="195" y="66">Потребность</text></g>
+        <g><rect class="node-box" x="263" y="44" width="104" height="36" rx="5"/><text class="node-text" text-anchor="middle" x="315" y="66">Заявка письмом</text></g>
+        <g><rect class="node-box" x="383" y="108" width="104" height="36" rx="5"/><text class="node-text" text-anchor="middle" x="435" y="130">Аппрув в почте</text></g>
+        <g><rect class="node-box" x="503" y="172" width="104" height="36" rx="5"/><text class="node-text" text-anchor="middle" x="555" y="194">Публикация</text></g>
+        <g><rect class="node-box" x="623" y="168" width="104" height="44" rx="5"/><text class="node-text" text-anchor="middle" x="675" y="186">Кандидаты</text><text class="node-text" text-anchor="middle" x="675" y="200">в Excel</text></g>
+        <g><rect class="node-box" x="743" y="44" width="104" height="36" rx="5"/><text class="node-text" text-anchor="middle" x="795" y="66">Интервью</text></g>
+        <g><rect class="node-box" x="863" y="172" width="104" height="36" rx="5"/><text class="node-text" text-anchor="middle" x="915" y="194">Фидбэк в чате</text></g>
+        <g><rect class="node-box" x="983" y="172" width="104" height="36" rx="5"/><text class="node-text" text-anchor="middle" x="1035" y="194">Оффер</text></g>
+        <g><rect class="node-box" x="1103" y="232" width="104" height="44" rx="5"/><text class="node-text" text-anchor="middle" x="1155" y="250">Задачи</text><text class="node-text" text-anchor="middle" x="1155" y="264">по памяти</text></g>
+
+        <!-- разрозненные инструменты в дорожке «Система» -->
+        <text class="stage-label" text-anchor="middle" x="375" y="322" font-style="italic">почта</text>
+        <text class="stage-label" text-anchor="middle" x="675" y="322" font-style="italic">Excel-файл</text>
+        <text class="stage-label" text-anchor="middle" x="915" y="322" font-style="italic">мессенджер</text>
+        <text class="stage-label" text-anchor="middle" x="662" y="340" font-size="10">нет единого источника правды</text>
+
+        <!-- потоки (все ручные) -->
+        <polyline class="flow hand" points="247,62 263,62" marker-end="url(#a-hand)"/>
+        <polyline class="flow hand" points="315,80 315,126 383,126" marker-end="url(#a-hand)"/>
+        <polyline class="flow hand" points="487,126 495,126 495,190 503,190" marker-end="url(#a-hand)"/>
+        <polyline class="flow hand" points="607,190 623,190" marker-end="url(#a-hand)"/>
+        <polyline class="flow hand" points="727,190 735,190 735,62 743,62" marker-end="url(#a-hand)"/>
+        <polyline class="flow hand" points="847,62 855,62 855,190 863,190" marker-end="url(#a-hand)"/>
+        <polyline class="flow hand" points="967,190 983,190" marker-end="url(#a-hand)"/>
+        <polyline class="flow hand" points="1035,208 1035,254 1103,254" marker-end="url(#a-hand)"/>
+
+        <!-- гэпы -->
+        <g><circle class="gap-badge" cx="334" cy="126" r="10"/><text class="gap-badge-text" text-anchor="middle" x="334" y="130">1</text></g>
+        <g><circle class="gap-badge" cx="615" cy="190" r="10"/><text class="gap-badge-text" text-anchor="middle" x="615" y="194">2</text></g>
+        <g><circle class="gap-badge" cx="855" cy="128" r="10"/><text class="gap-badge-text" text-anchor="middle" x="855" y="132">3</text></g>
+        <g><circle class="gap-badge" cx="975" cy="190" r="10"/><text class="gap-badge-text" text-anchor="middle" x="975" y="194">4</text></g>
+        <g><circle class="gap-badge" cx="1069" cy="254" r="10"/><text class="gap-badge-text" text-anchor="middle" x="1069" y="258">5</text></g>
+      </g>
+    </svg>
+    <figcaption>Красный пунктир — ручная передача между ролями (письмо или сообщение в чате).
+      Дорожка «Система» почти пуста: вместо единого источника правды — три несвязанных инструмента.
+      Кружки&nbsp;1–5 на пунктирных стрелках — гэпы на ручных передачах (см. карту ниже).</figcaption>
+  </figure>
+
+  <h2>To-be — целевой процесс</h2>
+  <figure class="diagram">
+    <svg class="swimlane" viewBox="0 0 1225 362" role="img" aria-label="Swim lane целевого процесса: те же дорожки и этапы, но единым источником правды становится система — объект Вакансия со статусами, автопереходами, SLA-таймерами и уведомлениями">
+      <defs>
+        <marker id="a-auto" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><polygon points="0,0 8,4 0,8" fill="#0f7a5a"/></marker>
+      </defs>
+      <g class="swimlane">
+        <line class="lane-sep" x1="10" y1="30" x2="1215" y2="30"/>
+        <line class="lane-sep" x1="10" y1="94" x2="1215" y2="94"/>
+        <line class="lane-sep" x1="10" y1="158" x2="1215" y2="158"/>
+        <line class="lane-sep" x1="10" y1="222" x2="1215" y2="222"/>
+        <line class="lane-sep" x1="10" y1="286" x2="1215" y2="286"/>
+        <line class="lane-sep" x1="10" y1="350" x2="1215" y2="350"/>
+        <line class="lane-sep" x1="135" y1="10" x2="135" y2="350"/>
+        <text class="lane-label" x="16" y="66">HM</text>
+        <text class="lane-label" x="16" y="123">Согласу-</text><text class="lane-label" x="16" y="135">ющие</text>
+        <text class="lane-label" x="16" y="194">Рекрутер</text>
+        <text class="lane-label" x="16" y="258">HRBP</text>
+        <text class="lane-label" x="16" y="322">Система</text>
+        <text class="stage-label" text-anchor="middle" x="195" y="22">Потребность</text>
+        <text class="stage-label" text-anchor="middle" x="315" y="22">Заявка</text>
+        <text class="stage-label" text-anchor="middle" x="435" y="22">Согласование</text>
+        <text class="stage-label" text-anchor="middle" x="555" y="22">Публикация</text>
+        <text class="stage-label" text-anchor="middle" x="675" y="22">Сорсинг / скрининг</text>
+        <text class="stage-label" text-anchor="middle" x="795" y="22">Интервью</text>
+        <text class="stage-label" text-anchor="middle" x="915" y="22">Фидбэк</text>
+        <text class="stage-label" text-anchor="middle" x="1035" y="22">Оффер</text>
+        <text class="stage-label" text-anchor="middle" x="1155" y="22">Онбординг</text>
+
+        <g><rect class="node-box" x="143" y="44" width="104" height="36" rx="5"/><text class="node-text" text-anchor="middle" x="195" y="66">Открыл вакансию</text></g>
+        <g><rect class="node-box" x="263" y="44" width="104" height="36" rx="5"/><text class="node-text" text-anchor="middle" x="315" y="66">Форма заявки</text></g>
+        <g><rect class="node-box" x="383" y="108" width="104" height="44" rx="5"/><text class="node-text" text-anchor="middle" x="435" y="126">Аппрув в 1 клик,</text><text class="node-text" text-anchor="middle" x="435" y="140">статус виден</text></g>
+        <g><rect class="node-box" x="503" y="172" width="104" height="36" rx="5"/><text class="node-text" text-anchor="middle" x="555" y="194">Публикация</text></g>
+        <g><rect class="node-box" x="623" y="168" width="104" height="44" rx="5"/><text class="node-text" text-anchor="middle" x="675" y="186">Общая</text><text class="node-text" text-anchor="middle" x="675" y="200">воронка</text></g>
+        <g><rect class="node-box" x="743" y="44" width="104" height="36" rx="5"/><text class="node-text" text-anchor="middle" x="795" y="66">Интервью</text></g>
+        <g><rect class="node-box" x="863" y="44" width="104" height="36" rx="5"/><text class="node-text" text-anchor="middle" x="915" y="66">Scorecard</text></g>
+        <g><rect class="node-box" x="983" y="172" width="104" height="36" rx="5"/><text class="node-text" text-anchor="middle" x="1035" y="194">Оффер</text></g>
+        <g><rect class="node-box" x="1103" y="232" width="104" height="44" rx="5"/><text class="node-text" text-anchor="middle" x="1155" y="250">Авто</text><text class="node-text" text-anchor="middle" x="1155" y="264">чек-лист</text></g>
+
+        <!-- система как единый источник правды -->
+        <rect x="263" y="300" width="944" height="36" rx="8" fill="var(--accent-soft)" stroke="var(--accent)"/>
+        <text text-anchor="middle" x="735" y="322" font-size="11.5" fill="var(--ink)">Единый объект «Вакансия»: статусы · автопереходы · SLA-таймеры · уведомления «мяч на тебе»</text>
+
+        <!-- потоки: авто -->
+        <polyline class="flow auto" points="247,62 263,62" marker-end="url(#a-auto)"/>
+        <polyline class="flow auto" points="315,80 315,126 383,126" marker-end="url(#a-auto)"/>
+        <polyline class="flow auto" points="487,130 495,130 495,190 503,190" marker-end="url(#a-auto)"/>
+        <polyline class="flow auto" points="607,190 623,190" marker-end="url(#a-auto)"/>
+        <polyline class="flow auto" points="727,190 735,190 735,62 743,62" marker-end="url(#a-auto)"/>
+        <polyline class="flow auto" points="847,62 863,62" marker-end="url(#a-auto)"/>
+        <polyline class="flow auto" points="915,80 915,190 983,190" marker-end="url(#a-auto)"/>
+        <polyline class="flow auto" points="1035,208 1035,254 1103,254" marker-end="url(#a-auto)"/>
+        <!-- оркестрация снизу -->
+        <line class="flow auto" x1="435" y1="300" x2="435" y2="152" stroke-dasharray="3 3"/>
+        <line class="flow auto" x1="675" y1="300" x2="675" y2="212" stroke-dasharray="3 3"/>
+        <line class="flow auto" x1="1035" y1="300" x2="1035" y2="208" stroke-dasharray="3 3"/>
+        <line class="flow auto" x1="1155" y1="300" x2="1155" y2="276" stroke-dasharray="3 3"/>
+      </g>
+    </svg>
+    <figcaption>Зелёные связи — автоматические переходы и уведомления. Ручные передачи через почту
+      и чат исчезают: их место занимает единый объект «Вакансия», который знает статус и сам
+      двигает процесс, а роли работают в общем контексте.</figcaption>
+  </figure>
+
+  <h2>Карта: гэп → решение в to-be</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Гэп</th><th>Как закрывается в to-be</th><th>Эпик бэклога</th></tr></thead>
+    <tbody>
+      <tr><td>1 · Заявка и согласование в почте</td><td>Форма заявки в кабинете, линейный маршрут аппрува со статусом и уведомлениями согласующим</td><td><a href="#e1">E1 · Заявка и согласование</a></td></tr>
+      <tr><td>2 · Кандидаты в Excel</td><td>Общая карточка вакансии и канбан-воронка с доступом HM и рекрутера, дедупликация</td><td><a href="#e2">E2 · Единая воронка</a></td></tr>
+      <tr><td>3 · Фидбэк в чатах</td><td>Шаблон scorecard, запрос фидбэка интервьюерам, агрегированная рекомендация, блок перехода без фидбэка</td><td><a href="#e3">E3 · Структурированный фидбэк</a></td></tr>
+      <tr><td>4 · Переходы без SLA</td><td>Автопереходы по событиям, SLA-таймеры и индикатор «завис», эскалации, адресные уведомления</td><td><a href="#e4">E4 · Оркестрация и SLA</a></td></tr>
+      <tr><td>5 · Онбординг по памяти</td><td>Статус «оффер принят» автоматически создаёт чек-лист онбординга с задачами на IT, доступы, рабочее место</td><td><a href="#e5">E5 · Онбординг-хэндовер</a></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p class="footnote">Дальше: <a href="#d02">02 · путь рекрутера по этому процессу</a> · <a href="prototype/index.html">прототип</a></p>
+
+  </section>
+  <section class="doc-panel" id="d02" role="tabpanel" aria-labelledby="tab-d02" hidden>
+
+  <header class="doc-head">
+    <span class="kicker">Кейс «Кабинет найма» · документ 02</span>
+    <h1>Путь рекрутера: от «взял вакансию» до «передал новичка»</h1>
+    <span class="meta">CJM одной роли · 8 этапов · инструменты as-is</span>
+  </header>
+
+  <p class="lede">Рекрутер выбран для CJM не случайно: это единственная роль, которая проходит
+    процесс целиком, и именно на ней сходятся все пять гэпов из документа&nbsp;01. Нанимающий
+    менеджер видит только «свои» куски, HRBP включается в начале и конце — а рекрутер держит всю
+    склейку руками.</p>
+
+  <div class="card" style="max-width:42rem">
+    <h3>Персона: Марина, рекрутер полного цикла</h3>
+    <p style="margin:0.3rem 0 0;color:var(--ink-muted);font-size:0.92rem">Ведёт 6–8 вакансий
+      одновременно, разного грейда. KPI — time-to-hire и доля успешно прошедших испытательный
+      срок. Главная боль — не поиск людей, а «административный клей»: сведение статусов, догонки
+      за фидбэком, ручные напоминания всем участникам.</p>
+  </div>
+
+  <h2>Карта пути</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr>
+      <th style="min-width:9rem">Этап</th><th>Действия</th><th>Точки контакта</th>
+      <th>Инструменты as-is</th><th>Боль</th><th>Возможность продукта</th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>1. Получил вакансию в работу</strong></td>
+        <td>Принимает заявку от HM, заводит вакансию у себя, прикидывает стратегию поиска</td>
+        <td>HM, руководитель отдела подбора</td>
+        <td>Письмо, устный разговор, свой Excel</td>
+        <td>Заявка приходит в свободной форме, часто без вилки и профиля</td>
+        <td>Структурированная форма заявки как единственный вход</td>
+      </tr>
+      <tr>
+        <td><strong>2. Разобрался в требованиях</strong> <span class="badge enabler">пик боли</span></td>
+        <td>Уточняет профиль, обязанности, must-have, вилку, процесс интервью</td>
+        <td>HM, иногда его руководитель</td>
+        <td>Чат, созвон, комментарии в письме</td>
+        <td>Ходит уточнять по 2–3 круга; договорённости оседают в переписке и теряются</td>
+        <td>Обязательные поля заявки + intake-чеклист + фиксация договорённостей в карточке</td>
+      </tr>
+      <tr>
+        <td><strong>3. Публикация и сорсинг</strong></td>
+        <td>Публикует вакансию, ведёт активный поиск, пишет кандидатам</td>
+        <td>Джоб-борды, соцсети, реферальные каналы</td>
+        <td>hh.ru, LinkedIn-аналоги, Telegram, Excel</td>
+        <td>Кандидаты из разных источников сводятся в таблицу вручную, возникают дубли</td>
+        <td>Единая воронка с автоприёмом откликов и меткой источника</td>
+      </tr>
+      <tr>
+        <td><strong>4. Скрининг</strong></td>
+        <td>Первичный отбор по резюме, телефонное интервью, отсев</td>
+        <td>Кандидаты</td>
+        <td>Телефон, заметки в Excel</td>
+        <td>HM не видит, кого отсеяли и почему; спрашивает статус в чате</td>
+        <td>Канбан-воронка, видимая HM в реальном времени</td>
+      </tr>
+      <tr>
+        <td><strong>5. Организация интервью</strong></td>
+        <td>Согласует слоты между кандидатом и 2–3 интервьюерами, рассылает приглашения</td>
+        <td>Кандидат, интервьюеры, ассистенты</td>
+        <td>Почта, календарь, чат</td>
+        <td>Календарный пинг-понг; переносы теряются; интервьюеры забывают</td>
+        <td>Подбор слота и напоминания из карточки кандидата</td>
+      </tr>
+      <tr>
+        <td><strong>6. Сбор фидбэка</strong> <span class="badge enabler">пик боли</span></td>
+        <td>Напоминает каждому интервьюеру, собирает мнения, сводит к решению</td>
+        <td>Интервьюеры, HM</td>
+        <td>Чат, устно, разрозненные заметки</td>
+        <td>Догоняет людей по 2–4 дня; фидбэк несопоставим; решение без следа</td>
+        <td>Структурированный scorecard + запрос в один клик + агрегированная рекомендация</td>
+      </tr>
+      <tr>
+        <td><strong>7. Продвижение к офферу</strong></td>
+        <td>Согласует условия, готовит и делает оффер, ведёт кандидата до принятия</td>
+        <td>HM, C&amp;B, кандидат</td>
+        <td>Письмо, документ оффера, чат</td>
+        <td>Согласование вилки — снова переписка; статус оффера нигде не виден</td>
+        <td>Оффер из карточки с маршрутом согласования и статусом</td>
+      </tr>
+      <tr>
+        <td><strong>8. Передача на онбординг</strong></td>
+        <td>Сообщает HRBP и HM о выходе, передаёт данные кандидата, закрывает вакансию</td>
+        <td>HRBP, HM, IT</td>
+        <td>Письмо, чат, устно</td>
+        <td>Передаёт руками; часть задач онбординга ставится в последний момент</td>
+        <td>Статус «оффер принят» сам создаёт чек-лист онбординга и уведомляет HRBP</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>Кривая эмоций</h2>
+  <figure class="diagram">
+    <svg viewBox="0 0 920 280" role="img" aria-label="График эмоционального состояния рекрутера по восьми этапам: подъём на старте, глубокий провал на этапе разбора требований, ещё более глубокий — на сборе фидбэка, подъём на оффере и снова спад на ручной передаче в онбординг">
+      <defs>
+        <marker id="dot" markerWidth="6" markerHeight="6" refX="3" refY="3"><circle cx="3" cy="3" r="3" fill="currentColor"/></marker>
+      </defs>
+      <!-- оси -->
+      <line x1="60" y1="140" x2="880" y2="140" stroke="var(--border-strong)" stroke-dasharray="4 4"/>
+      <text x="46" y="60" text-anchor="end" font-size="11" fill="var(--ink-muted)">😀</text>
+      <text x="46" y="226" text-anchor="end" font-size="11" fill="var(--ink-muted)">😣</text>
+      <text x="46" y="144" text-anchor="end" font-size="11" fill="var(--ink-muted)">0</text>
+      <!-- линия настроения: x = 60 + i*114 ; y = 140 - score*44 -->
+      <polyline fill="none" stroke="var(--accent)" stroke-width="2.5"
+        points="60,96 174,206 288,118 402,140 516,162 630,228 744,96 858,162"/>
+      <!-- точки -->
+      <circle cx="60"  cy="96"  r="4" fill="var(--accent)"/>
+      <circle cx="174" cy="206" r="5" fill="var(--gap)"/>
+      <circle cx="288" cy="118" r="4" fill="var(--accent)"/>
+      <circle cx="402" cy="140" r="4" fill="var(--accent)"/>
+      <circle cx="516" cy="162" r="4" fill="var(--warn)"/>
+      <circle cx="630" cy="228" r="5" fill="var(--gap)"/>
+      <circle cx="744" cy="96"  r="4" fill="var(--accent)"/>
+      <circle cx="858" cy="162" r="4" fill="var(--warn)"/>
+      <!-- подписи этапов -->
+      <g font-size="10.5" fill="var(--ink-muted)" text-anchor="middle">
+        <text x="60"  y="262">1 · Взял</text>
+        <text x="174" y="262">2 · Требования</text>
+        <text x="288" y="262">3 · Сорсинг</text>
+        <text x="402" y="262">4 · Скрининг</text>
+        <text x="516" y="262">5 · Интервью</text>
+        <text x="630" y="262">6 · Фидбэк</text>
+        <text x="744" y="262">7 · Оффер</text>
+        <text x="858" y="262">8 · Онбординг</text>
+      </g>
+      <!-- аннотации провалов -->
+      <text x="174" y="196" text-anchor="middle" font-size="10" fill="var(--gap)">неполная заявка</text>
+      <text x="630" y="248" text-anchor="middle" font-size="10" fill="var(--gap)">догонки за фидбэком</text>
+    </svg>
+    <figcaption>Два провала — не про поиск людей, а про ручную склейку: разбор требований по
+      кругам переписки (этап&nbsp;2) и сбор фидбэка догонками (этап&nbsp;6). Это и есть точки, где
+      продукт даёт максимальный эффект.</figcaption>
+  </figure>
+
+  <h2>Инсайты</h2>
+  <div class="callout gap">
+    <span class="tag">Инсайт 1 → гэп 1, эпик E1</span>
+    <p>Качество всего цикла задаётся на входе. Неполная заявка = 2–3 круга уточнений и риск искать
+      «не того». Форма заявки с обязательными полями окупается сильнее, чем кажется по её простоте.</p>
+  </div>
+  <div class="callout gap">
+    <span class="tag">Инсайт 2 → гэп 3, эпик E3</span>
+    <p>Самая дорогая рутина рекрутера — не сорсинг, а сбор фидбэка. Структурированный scorecard с
+      запросом в один клик и напоминаниями снимает 2–4 дня ожидания с каждого кандидата на финале.</p>
+  </div>
+  <div class="callout info">
+    <span class="tag">Инсайт 3 → гэп 2 и 4, эпики E2, E4</span>
+    <p>Половина сообщений рекрутера в чатах — это ответ на вопрос «какой статус?». Общая воронка,
+      видимая HM, и адресные уведомления убирают сам класс этих коммуникаций.</p>
+  </div>
+  <div class="callout info">
+    <span class="tag">Инсайт 4 → гэп 5, эпик E5</span>
+    <p>Для рекрутера онбординг — «уже не моя зона», для HRBP — «ещё не дошли руки». Этот вакуум
+      закрывается не человеком, а событием: принятый оффер должен сам создавать чек-лист.</p>
+  </div>
+
+  <p class="footnote">Дальше: <a href="#d03">03 · бэклог, где эти возможности превращаются в истории</a> · <a href="prototype/index.html">прототип</a></p>
+
+  </section>
+  <section class="doc-panel" id="d03" role="tabpanel" aria-labelledby="tab-d03" hidden>
+
+  <header class="doc-head">
+    <span class="kicker">Кейс «Кабинет найма» · документ 03</span>
+    <h1>Бэклог: user stories, закрывающие гэпы</h1>
+    <span class="meta">6 эпиков · 26 историй · трассировка к гэпам 01</span>
+  </header>
+
+  <p class="lede">Каждый эпик соответствует одному гэпу из документа&nbsp;01. Формат истории:
+    <em>как роль — хочу действие — чтобы ценность</em>, с критериями приёмки.</p>
+
+  <!-- E1 -->
+  <div class="epic-head" id="e1"><span class="code">E1</span><h2>Заявка и согласование</h2></div>
+  <p style="color:var(--ink-muted);max-width:42rem">Закрывает <a href="#d01">гэп 1</a>: заявка в почте, аппрув в переписке, статус не виден.</p>
+
+  <div class="story">
+    <span class="id">S1.1</span>
+    <span class="title">Как HM, я хочу создать заявку на вакансию по форме с обязательными полями (профиль, вилка, грейд, обоснование headcount), чтобы рекрутер получил всё необходимое сразу.</span>
+    <ul>
+      <li>Заявку нельзя отправить, пока не заполнены обязательные поля</li>
+      <li>Черновик автосохраняется; заявка привязана к оргединице и бюджету</li>
+      <li>Есть intake-подсказки по типовому профилю грейда</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <span class="id">S1.2</span>
+    <span class="title">Как согласующий, я хочу видеть очередь заявок на мой аппрув и согласовывать или отклонять в один клик с комментарием, чтобы не держать процесс в почте.</span>
+    <ul>
+      <li>Линейный маршрут: руководитель HM → финансы/C&amp;B при превышении порога вилки</li>
+      <li>Отклонение возвращает заявку автору с указанием причины</li>
+      <li>Каждое решение фиксируется с автором и временем</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <span class="id">S1.3</span>
+    <span class="title">Как HM, я хочу видеть статус своей заявки и на ком сейчас шаг, чтобы не спрашивать в чате.</span>
+    <ul>
+      <li>Статусы: черновик · на согласовании · согласовано · отклонено</li>
+      <li>Виден текущий согласующий и сколько времени заявка у него</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <span class="id">S1.4</span>
+    <span class="title">Как согласующий, я хочу получать уведомление о заявке, ждущей меня, и напоминание через N часов, чтобы не замедлять процесс согласования.</span>
+    <ul>
+      <li>Уведомление при попадании заявки в мою очередь</li>
+      <li>Повторное напоминание по истечении SLA, затем эскалация руководителю</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <span class="id">S1.5</span>
+    <span class="title">Как рекрутер, я хочу, чтобы согласованная заявка автоматически становилась карточкой вакансии, чтобы не переносить данные руками.</span>
+    <ul>
+      <li>Поля заявки переносятся в вакансию без повторного ввода</li>
+      <li>Связь «заявка ↔ вакансия» сохраняется для аудита</li>
+    </ul>
+  </div>
+
+  <!-- E2 -->
+  <div class="epic-head" id="e2"><span class="code">E2</span><h2>Единая воронка</h2></div>
+  <p style="color:var(--ink-muted);max-width:42rem">Закрывает <a href="#d01">гэп 2</a>: кандидаты в личном Excel рекрутера.</p>
+
+  <div class="story">
+    <span class="id">S2.1</span>
+    <span class="title">Как рекрутер, я хочу вести кандидатов по этапам на канбан-доске вакансии, чтобы заменить личную таблицу.</span>
+    <ul>
+      <li>Настраиваемый набор этапов; перевод кандидата между этапами</li>
+      <li>Счётчики по этапам и фильтры по рекрутеру/статусу</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <span class="id">S2.2</span>
+    <span class="title">Как HM, я хочу видеть воронку своей вакансии в реальном времени, чтобы понимать наполнение без запроса рекрутеру.</span>
+    <ul>
+      <li>Доступ на чтение всем участникам вакансии</li>
+      <li>Видны кандидаты, их этапы и причины отказа</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <span class="id">S2.3</span>
+    <span class="title">Как рекрутер, я хочу единую карточку кандидата с резюме, контактами, источником и историей касаний, чтобы весь контекст был в одном месте.</span>
+    <ul>
+      <li>Таймлайн действий по кандидату; вложения и заметки</li>
+      <li>Теги и связь с другими вакансиями кандидата</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <span class="id">S2.4</span>
+    <span class="title">Как рекрутер, я хочу автоматическое обнаружение дублей кандидата, чтобы не вести одного человека дважды.</span>
+    <ul>
+      <li>Матч по email и телефону при добавлении; предупреждение</li>
+      <li>Возможность склеить карточки с сохранением истории</li>
+    </ul>
+  </div>
+
+  <!-- E3 -->
+  <div class="epic-head" id="e3"><span class="code">E3</span><h2>Структурированный фидбэк</h2></div>
+  <p style="color:var(--ink-muted);max-width:42rem">Закрывает <a href="#d01">гэп 3</a>: фидбэк по интервью в чатах, решения без следа.</p>
+
+  <div class="story">
+    <span class="id">S3.1</span>
+    <span class="title">Как HR, я хочу задать шаблон scorecard для вакансии (критерии + шкала), чтобы оценки кандидатов были сопоставимы.</span>
+    <ul>
+      <li>Набор критериев, шкала 1–4, шаблон по умолчанию для грейда</li>
+      <li>Шаблон можно скорректировать под конкретную вакансию</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <span class="id">S3.2</span>
+    <span class="title">Как рекрутер, я хочу запросить фидбэк у интервьюеров в один клик из карточки кандидата, чтобы не писать каждому вручную.</span>
+    <ul>
+      <li>Выбор интервьюеров; уведомление со ссылкой на форму</li>
+      <li>Автонапоминание тем, кто не заполнил, через заданный срок</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <span class="id">S3.3</span>
+    <span class="title">Как интервьюер, я хочу заполнить scorecard за две минуты: оценки по критериям, рекомендация hire / no-hire, короткий комментарий.</span>
+    <ul>
+      <li>Форма строится из шаблона вакансии; черновик сохраняется</li>
+      <li>Нельзя отправить без итоговой рекомендации</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <span class="id">S3.4</span>
+    <span class="title">Как HM, я хочу видеть агрегированную рекомендацию по кандидату — сводку оценок и hire / no-hire всех интервьюеров, — чтобы принять решение по фактам.</span>
+    <ul>
+      <li>Агрегат обновляется по мере поступления scorecard</li>
+      <li>Видно, кто из интервьюеров ещё не сдал фидбэк</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <span class="id">S3.5</span>
+    <span class="title">Как HR, я хочу, чтобы перевод кандидата на этап оффера блокировался без собранного фидбэка, чтобы решение всегда имело зафиксированный след.</span>
+    <ul>
+      <li>Правило настраивается на этап; при попытке перехода — предупреждение</li>
+      <li>Override возможен только с письменным обоснованием</li>
+    </ul>
+  </div>
+
+  <!-- E4 -->
+  <div class="epic-head" id="e4"><span class="code">E4</span><h2>Оркестрация и SLA</h2></div>
+  <p style="color:var(--ink-muted);max-width:42rem">Закрывает <a href="#d01">гэп 4</a>: переходы между этапами ручным пингом, нет SLA.</p>
+
+  <div class="story">
+    <span class="id">S4.1</span>
+    <span class="title">Как HR, я хочу задавать SLA на каждый этап воронки, чтобы отслеживать «зависших» кандидатов.</span>
+    <ul>
+      <li>Срок в днях на этап; индикатор превышения на карточке кандидата</li>
+      <li>Отчёт по кандидатам с нарушенным SLA</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <span class="id">S4.2</span>
+    <span class="title">Как рекрутер или HM, я хочу адресное уведомление, когда действие ждёт именно меня, чтобы не мониторить доску вручную.</span>
+    <ul>
+      <li>Событие в процессе → уведомление ответственному за следующий шаг</li>
+      <li>Ежедневный дайджест открытых задач; без дублирующих сообщений</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <span class="id">S4.3</span>
+    <span class="title">Как HR, я хочу автоэскалацию при превышении SLA, чтобы узкое место не оставалось незамеченным.</span>
+    <ul>
+      <li>Эскалация руководителю ответственного через N дней просрочки</li>
+      <li>Действие логируется в истории вакансии</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <span class="id">S4.4</span>
+    <span class="title">Как рекрутер, я хочу автопереходы по событиям (назначено интервью → этап «Интервью»; все scorecard собраны → этап «Фидбэк»), чтобы не двигать кандидата руками.</span>
+    <ul>
+      <li>Набор правил «событие → переход» настраивается администратором</li>
+      <li>Автоперевод отражается в истории с пометкой «автоматически»</li>
+    </ul>
+  </div>
+
+  <!-- E5 -->
+  <div class="epic-head" id="e5"><span class="code">E5</span><h2>Онбординг-хэндовер</h2></div>
+  <p style="color:var(--ink-muted);max-width:42rem">Закрывает <a href="#d01">гэп 5</a>: онбординг стартует «по памяти» после оффера.</p>
+
+  <div class="story">
+    <span class="id">S5.1</span>
+    <span class="title">Как HRBP, я хочу, чтобы статус «оффер принят» автоматически создавал чек-лист онбординга (IT, доступы, рабочее место, оформление, план на первый день), чтобы ничего не забыть.</span>
+    <ul>
+      <li>Шаблон чек-листа по типу роли; задачи с ответственными</li>
+      <li>Сроки задач считаются относительно даты выхода</li>
+      <li>HRBP и HM получают уведомление о создании чек-листа</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <span class="id">S5.2</span>
+    <span class="title">Как HRBP, я хочу передать данные кандидата в кадровый учёт из карточки, чтобы не вводить их повторно.</span>
+    <ul>
+      <li>Экспорт или интеграция ключевых полей кандидата</li>
+      <li>Согласие кандидата на обработку данных зафиксировано</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <span class="id">S5.3</span>
+    <span class="title">Как HM, я хочу видеть готовность онбординга нового сотрудника к дате выхода, чтобы вмешаться заранее.</span>
+    <ul>
+      <li>Прогресс чек-листа в процентах; подсветка просроченных задач</li>
+      <li>Напоминание за 3 дня до выхода при незакрытых критичных задачах</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <span class="id">S5.4</span>
+    <span class="title">Как рекрутер, я хочу, чтобы вакансия автоматически закрывалась при выходе кандидата, чтобы поддерживать чистоту статусов.</span>
+    <ul>
+      <li>Переход кандидата в статус «вышел» закрывает связанную вакансию</li>
+      <li>При нескольких позициях в заявке закрывается одна из них</li>
+    </ul>
+  </div>
+
+  <!-- E6 -->
+  <div class="epic-head" id="e6"><span class="code">E6</span><h2>Аналитика статусов</h2> <span class="badge could">весь эпик — Could</span></div>
+  <p style="color:var(--ink-muted);max-width:42rem">Не закрывает отдельный гэп — надстройка над
+    данными, которые появятся благодаря E1–E5. Осознанно отложена (см. документ 04).</p>
+  <div class="grid">
+    <div class="card"><span class="n">S6.1</span><h3>Дашборд статусов</h3><p style="font-size:0.88rem;color:var(--ink-muted)">Все вакансии в одном экране: этап, ответственный, дни в работе, нарушения SLA.</p></div>
+    <div class="card"><span class="n">S6.2</span><h3>Конверсия воронки</h3><p style="font-size:0.88rem;color:var(--ink-muted)">Переходы между этапами и по источникам кандидатов.</p></div>
+    <div class="card"><span class="n">S6.3</span><h3>Time-to-hire</h3><p style="font-size:0.88rem;color:var(--ink-muted)">Общий срок и его разложение по этапам — где теряются дни.</p></div>
+    <div class="card"><span class="n">S6.4</span><h3>Нагрузка рекрутеров</h3><p style="font-size:0.88rem;color:var(--ink-muted)">Активные вакансии и кандидаты на рекрутера, для балансировки.</p></div>
+  </div>
+
+  <h2>Трассировка: гэп → истории</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Гэп (документ 01)</th><th>Эпик</th><th>Истории</th></tr></thead>
+    <tbody>
+      <tr><td>1 · Заявка и согласование в почте</td><td>E1</td><td>S1.1 · S1.2 · S1.3 · S1.4 · S1.5</td></tr>
+      <tr><td>2 · Кандидаты в Excel</td><td>E2</td><td>S2.1 · S2.2 · S2.3 · S2.4</td></tr>
+      <tr><td>3 · Фидбэк в чатах</td><td>E3</td><td>S3.1 · S3.2 · S3.3 · S3.4 · S3.5</td></tr>
+      <tr><td>4 · Переходы без SLA</td><td>E4</td><td>S4.1 · S4.2 · S4.3 · S4.4</td></tr>
+      <tr><td>5 · Онбординг по памяти</td><td>E5</td><td>S5.1 · S5.2 · S5.3 · S5.4</td></tr>
+      <tr><td>— (надстройка)</td><td>E6</td><td>S6.1 · S6.2 · S6.3 · S6.4</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p class="footnote">Дальше: <a href="#d04">04 · как из этих 26 историй собран MVP</a> · <a href="prototype/index.html">прототип</a></p>
+
+  </section>
+  <section class="doc-panel" id="d04" role="tabpanel" aria-labelledby="tab-d04" hidden>
+
+  <header class="doc-head">
+    <span class="kicker">Кейс «Кабинет найма» · документ 04</span>
+    <h1>Приоритизация по RICE и шорт-лист MVP</h1>
+    <span class="meta">Метод · расчётная таблица · гейт сквозного пути · метрики успеха</span>
+  </header>
+
+  <p class="lede">Задача приоритизации здесь особенная: нельзя просто взять топ самых ценных фич.
+    «Единый кабинет» имеет смысл, только если happy path <em>заявка → выход</em> непрерывен. Поэтому
+    метод — RICE, но happy path обязан оставаться непрерывным: заявку и онбординг-чек-лист
+    держим в MVP, даже если по чистому RICE они ниже.</p>
+
+  <h2>Шкалы под этот кейс</h2>
+  <div class="grid">
+    <div class="card"><h3>Reach</h3><p style="font-size:0.88rem;color:var(--ink-muted)">Событий за квартал, которых касается фича. Ориентир: 40 заявок на подбор в квартал, ~30 выходов, ~10 кандидатов и ~4 финалиста на вакансию.</p></div>
+    <div class="card"><h3>Impact</h3><p style="font-size:0.88rem;color:var(--ink-muted)">Вклад в time-to-hire и долю ручных передач. Шкала RICE: 3 / 2 / 1 / 0.5 / 0.25.</p></div>
+    <div class="card"><h3>Confidence</h3><p style="font-size:0.88rem;color:var(--ink-muted)">100 / 90 / 80 / 50 %. Дискавери кабинетный, поэтому <b>там, где эффект держится на гипотезе, ставим 80 % и ниже</b>. 90 % — только для проверенных паттернов, которые замещают понятный инструмент (канбан вместо Excel) или описывают базовую сущность (карточка вакансии).</p></div>
+    <div class="card"><h3>Effort</h3><p style="font-size:0.88rem;color:var(--ink-muted)">Человеко-недели команды из 1 fullstack + дизайнер. <span style="font-family:var(--font-mono)">RICE = R × I × C / E</span></p></div>
+  </div>
+
+  <h2>Расчётная таблица</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr>
+      <th>Фича (истории)</th><th class="num">R</th><th class="num">I</th><th class="num">C</th><th class="num">E</th><th class="num">RICE</th><th>Ключевое допущение</th><th>Аргументация оценок</th>
+    </tr></thead>
+    <tbody>
+      <tr class="is-mvp"><td>Структурный scorecard + запрос фидбэка <span class="badge">S3.1–S3.4</span></td><td class="num">480</td><td class="num">3</td><td class="num">0.8</td><td class="num">3</td><td class="num">384</td><td>Сбор фидбэка — самая дорогая рутина финала (CJM, инсайт 2)</td><td style="font-size:0.82rem;color:var(--ink-muted)"><b>R 480:</b> ~4 финалиста × ~3 интервьюера × 40 вакансий/кв. <b>I 3:</b> закрывает крупнейший источник ручных пингов в финале. <b>C 0.8:</b> механика понятна, но приживаемость шаблона критериев — гипотеза. <b>E 3:</b> формы + агрегация, без интеграций.</td></tr>
+      <tr class="is-mvp"><td>Канбан-воронка с ручным переводом этапов <span class="badge">S2.1–S2.3</span></td><td class="num">400</td><td class="num">3</td><td class="num">0.9</td><td class="num">4</td><td class="num">270</td><td>Заменяет Excel, даёт HM видимость — снимает класс «какой статус?»</td><td style="font-size:0.82rem;color:var(--ink-muted)"><b>R 400:</b> ~10 кандидатов × 40 вакансий/кв. <b>I 3:</b> убирает целый класс вопросов «на каком этапе». <b>C 0.9:</b> проверенный паттерн, замена очевидна. <b>E 4:</b> доски, карточки, история касаний.</td></tr>
+      <tr><td>SLA-таймеры + адресные уведомления <span class="badge">S4.1–S4.2</span></td><td class="num">400</td><td class="num">2</td><td class="num">0.7</td><td class="num">4</td><td class="num">140</td><td>Молчаливые дни между этапами — крупнейший вклад в time-to-hire</td><td style="font-size:0.82rem;color:var(--ink-muted)"><b>R 400:</b> число переходов этапов ≈ объёму воронки. <b>I 2:</b> ускоряет, но не разблокирует — путь работает и без напоминаний. <b>C 0.7:</b> нет данных, какие пороги SLA реально сдвинут поведение. <b>E 4:</b> таймеры + инфраструктура уведомлений.</td></tr>
+      <tr><td>Блок перехода на оффер без фидбэка <span class="badge">S3.5</span></td><td class="num">160</td><td class="num">1</td><td class="num">0.8</td><td class="num">1</td><td class="num">128</td><td>Дёшево; работает только поверх готового scorecard</td><td style="font-size:0.82rem;color:var(--ink-muted)"><b>R 160:</b> ~4 финалиста × 40 вакансий/кв. <b>I 1:</b> точечный контроль качества, не меняет скорость. <b>C 0.8:</b> простое правило, риск только в исключениях. <b>E 1:</b> одно условие поверх существующего статуса.</td></tr>
+      <tr class="is-mvp"><td>Единая карточка вакансии со статусом <span class="badge">S1.3 · S2.x</span></td><td class="num">120</td><td class="num">2</td><td class="num">0.9</td><td class="num">3</td><td class="num">72</td><td>Носитель состояния, на который всё крепится</td><td style="font-size:0.82rem;color:var(--ink-muted)"><b>R 120:</b> ~40 вакансий/кв × 3 просмотра статуса на участника. <b>I 2:</b> сам по себе экономит мало, но без него не живут остальные фичи. <b>C 0.9:</b> базовая сущность, риск только в деталях модели данных. <b>E 3:</b> модель данных + экран.</td></tr>
+      <tr><td>Автообнаружение дублей кандидата <span class="badge">S2.4</span></td><td class="num">400</td><td class="num">0.5</td><td class="num">0.7</td><td class="num">2</td><td class="num">70</td><td>Раздражает, но не блокирует процесс</td><td style="font-size:0.82rem;color:var(--ink-muted)"><b>R 400:</b> проверка на каждого кандидата воронки. <b>I 0.5:</b> раздражитель, а не потеря — обходится вручную. <b>C 0.7:</b> качество матчинга по ФИО/контактам заранее не известно. <b>E 2:</b> правила сравнения + разрешение конфликтов.</td></tr>
+      <tr><td>Автопереходы и эскалации <span class="badge">S4.3–S4.4</span></td><td class="num">400</td><td class="num">1</td><td class="num">0.5</td><td class="num">5</td><td class="num">40</td><td>Много правил и краевых случаев; уверенность низкая</td><td style="font-size:0.82rem;color:var(--ink-muted)"><b>R 400:</b> потенциально на каждом переходе этапа. <b>I 1:</b> экономит клики, но не устраняет ручную передачу как таковую. <b>C 0.5:</b> набор правил и краевых случаев не выявлен — нужна статистика. <b>E 5:</b> движок правил + тестирование сценариев.</td></tr>
+      <tr class="is-mvp"><td>Электронная заявка + линейное согласование <span class="badge">S1.1–S1.5</span></td><td class="num">120</td><td class="num">2</td><td class="num">0.8</td><td class="num">5</td><td class="num">38</td><td>Маршрутизация аппрува трудоёмка; охват — только заявки, не кандидаты</td><td style="font-size:0.82rem;color:var(--ink-muted)"><b>R 120:</b> ~40 заявок/кв × ~3 согласующих. <b>I 2:</b> замыкает вход процесса, но затрагивает только старт. <b>C 0.8:</b> линейный маршрут предсказуем. <b>E 5:</b> форма, роли, маршрутизация аппрува, уведомления.</td></tr>
+      <tr><td>Интеграция с джоб-бордами (автоприём откликов)</td><td class="num">300</td><td class="num">1</td><td class="num">0.6</td><td class="num">6</td><td class="num">30</td><td>Внешние API, долго; сорсинг вне фокуса кейса</td><td style="font-size:0.82rem;color:var(--ink-muted)"><b>R 300:</b> входящие отклики, но ниже объёма воронки. <b>I 1:</b> сорсинг вне фокуса кейса. <b>C 0.6:</b> зависит от чужих API и их лимитов. <b>E 6:</b> несколько внешних интеграций и нормализация данных.</td></tr>
+      <tr class="is-mvp"><td>Авто чек-лист онбординга при «оффер принят» <span class="badge">S5.1</span></td><td class="num">30</td><td class="num">2</td><td class="num">0.7</td><td class="num">3</td><td class="num">14</td><td>Малый охват (только выходы), но замыкает сквозной путь</td><td style="font-size:0.82rem;color:var(--ink-muted)"><b>R 30:</b> ~30 выходов/кв — самый узкий охват в списке. <b>I 2:</b> для этих случаев закрывает ручную постановку задач IT/доступам. <b>C 0.7:</b> состав чек-листа отличается по подразделениям. <b>E 3:</b> шаблон задач + триггер по статусу.</td></tr>
+      <tr><td>Передача данных в кадровый учёт <span class="badge">S5.2</span></td><td class="num">30</td><td class="num">1</td><td class="num">0.7</td><td class="num">3</td><td class="num">7</td><td>Зависит от внешней кадровой системы</td><td style="font-size:0.82rem;color:var(--ink-muted)"><b>R 30:</b> те же ~30 выходов/кв. <b>I 1:</b> экономит одно заполнение формы на выход. <b>C 0.7:</b> формат обмена с кадровой системой не зафиксирован. <b>E 3:</b> маппинг полей + выгрузка.</td></tr>
+      <tr><td>Аналитический дашборд статусов <span class="badge">E6</span></td><td class="num">30</td><td class="num">1</td><td class="num">0.7</td><td class="num">5</td><td class="num">4</td><td>Ценен, но не разблокирует процесс; нужен накопленный объём данных</td><td style="font-size:0.82rem;color:var(--ink-muted)"><b>R 30:</b> смотрят лид найма и HRD, редкие сессии. <b>I 1:</b> помогает управлять, но не убирает ручных передач. <b>C 0.7:</b> набор нужных срезов прояснится только на данных. <b>E 5:</b> витрина метрик + визуализация.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>Шорт-лист MVP</h2>
+  <p>По чистому RICE топ — это scorecard, воронка, SLA, блокировка и карточка. Электронная заявка
+    (RICE&nbsp;38) и авто-чек-лист онбординга (RICE&nbsp;14) в него не попадают, но включены в MVP
+    осознанно: это точки входа и выхода сквозного пути. RICE меряет отдачу отдельной фичи и по
+    построению недооценивает связующие звенья — без заявки согласование остаётся в почте, а
+    карточку вакансии заводят вручную, и «единый кабинет» вырождается в обычную ATS. Правило:
+    <strong>MVP = топ RICE, но happy path «заявка → согласование → воронка → фидбэк → оффер →
+    онбординг» обязан быть непрерывным</strong>.</p>
+  <div class="grid">
+    <div class="card"><span class="n">1</span><h3>Электронная заявка + линейное согласование</h3><p style="font-size:0.88rem;color:var(--ink-muted)">Форма с обязательными полями, маршрут аппрува в 1–2 шага, статус и уведомления. Точка входа.</p></div>
+    <div class="card"><span class="n">2</span><h3>Единая карточка вакансии со статусом</h3><p style="font-size:0.88rem;color:var(--ink-muted)">Носитель состояния: данные из заявки, команда найма, текущий статус, история.</p></div>
+    <div class="card"><span class="n">3</span><h3>Канбан-воронка, ручной перевод этапов</h3><p style="font-size:0.88rem;color:var(--ink-muted)">Общая для рекрутера и HM, карточка кандидата с историей касаний. Заменяет Excel.</p></div>
+    <div class="card"><span class="n">4</span><h3>Структурный scorecard + запрос фидбэка</h3><p style="font-size:0.88rem;color:var(--ink-muted)">Шаблон критериев, запрос в один клик, агрегат рекомендаций. Плюс дешёвый блок перехода на оффер без фидбэка (S3.5).</p></div>
+    <div class="card"><span class="n">5</span><h3>Авто чек-лист онбординга</h3><p style="font-size:0.88rem;color:var(--ink-muted)">Статус «оффер принят» создаёт задачи на IT, доступы, рабочее место. Точка выхода.</p></div>
+  </div>
+
+  <div class="callout ok">
+    <span class="tag">Принцип одной строкой</span>
+    <p>Каждый пункт MVP убирает ровно одну ручную передачу, а вместе они образуют непрерывную цепочку.
+      Это тонкий сквозной срез, а не набор лучших фич по отдельности.</p>
+  </div>
+
+  <h2>Fast-follow (сразу после MVP)</h2>
+  <ol style="max-width:42rem;color:var(--ink-muted)">
+    <li><strong>SLA-таймеры + адресные уведомления</strong> (RICE 140) — самый ценный не-MVP пункт. Не в MVP, потому что требует инфраструктуры уведомлений и таймеров, а сквозной путь работает и без проактивных напоминаний.</li>
+    <li><strong>Автообнаружение дублей</strong> (RICE 70) — снимает раздражитель воронки.</li>
+    <li><strong>Автопереходы по событиям</strong> (RICE 40) — когда наберётся статистика по краевым случаям.</li>
+  </ol>
+
+  <h2>Вне ближайшего горизонта</h2>
+  <p style="max-width:42rem;color:var(--ink-muted)">Интеграции с джоб-бордами и сорсинг · аналитический
+    дашборд (нужен объём данных) · параллельные и условные маршруты согласования · drag-and-drop в
+    воронке · ролевая кастомизация scorecard. Всё это — attractive-слой, который не влияет на
+    целостность процесса.</p>
+
+  <h2>Метрики успеха MVP</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Метрика</th><th>Что показывает</th><th>Ориентир</th></tr></thead>
+    <tbody>
+      <tr><td>Time-to-hire</td><td>Сквозной срок закрытия вакансии</td><td>−20 % за 2 квартала</td></tr>
+      <tr><td>Доля переходов этапа без ручного пинга</td><td>Насколько процесс перестал жить в чатах</td><td>&gt; 80 %</td></tr>
+      <tr><td>% интервью с заполненным scorecard в срок</td><td>Приживаемость структурного фидбэка</td><td>&gt; 90 %</td></tr>
+      <tr><td>% вакансий с чек-листом онбординга до дня выхода</td><td>Замкнут ли конец процесса</td><td>100 %</td></tr>
+      <tr><td>Доля заявок, потерянных до старта поиска</td><td>Замкнут ли вход процесса</td><td>→ 0</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p class="footnote">Начало: <a href="#d00">обзор</a> · <a href="#d01">01 · As-is / To-be</a>
+    · кликабельная модель воронки — <a href="prototype/index.html">прототип</a></p>
+
+  </section>
+</main>
+<script>
+(function () {
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('button.doc-tab'));
+  var panels = Array.prototype.slice.call(document.querySelectorAll('.doc-panel'));
+
+  function activate(id, opts) {
+    opts = opts || {};
+    var found = false;
+    tabs.forEach(function (t) {
+      var on = t.dataset.target === id;
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      t.tabIndex = on ? 0 : -1;
+      if (on) found = true;
+    });
+    panels.forEach(function (p) { p.hidden = p.id !== id; });
+    if (found && opts.hash !== false) history.replaceState(null, '', '#' + id);
+    if (opts.focus) {
+      var el = document.getElementById(id);
+      if (el) el.setAttribute('tabindex', '-1'), el.focus();
+    }
+  }
+
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () { activate(t.dataset.target); window.scrollTo(0, 0); });
+  });
+
+  // in-page anchor links: reveal the panel that contains the target, then scroll to it
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    var id = a.getAttribute('href').slice(1);
+    if (!id) return;
+    var target = document.getElementById(id);
+    if (!target) return;
+    e.preventDefault();
+    var panel = target.closest('.doc-panel');
+    if (panel) activate(panel.id);
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  // deep link on load: #d0x selects a tab, #anchor opens its panel
+  var initial = location.hash.slice(1);
+  var startPanel = document.getElementById('d00');
+  if (initial) {
+    var el = document.getElementById(initial);
+    if (el && el.classList.contains('doc-panel')) startPanel = el;
+    else if (el && el.closest('.doc-panel')) startPanel = el.closest('.doc-panel');
+  }
+  activate(startPanel.id, { hash: false });
+  if (initial && initial !== startPanel.id) {
+    var t = document.getElementById(initial);
+    if (t) t.scrollIntoView();
+  }
+})();
+</script>
+</body>
+</html>

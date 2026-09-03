@@ -1,0 +1,685 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Кабинет найма — прототип флоу</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --ground:#f5f6f8;--surface:#fff;--surface-alt:#eef1f4;--ink:#1a2230;--muted:#59616f;
+  --border:#dde1e7;--border-strong:#c3c9d2;--accent:#0f7a5a;--accent-soft:#e2f1eb;
+  --gap:#c0392b;--gap-soft:#f7e4e1;--warn:#b7791f;--warn-soft:#f6ecda;--info:#2f5fce;--info-soft:#e4ebfb;
+  --font-display:"Bricolage Grotesque","Trebuchet MS",sans-serif;
+  --font-body:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#14171c;--surface:#1c2028;--surface-alt:#262b34;--ink:#e8ebef;--muted:#a3abb8;
+  --border:#333a44;--border-strong:#454e5a;--accent:#3fbf95;--accent-soft:#17362c;
+  --gap:#e8776a;--gap-soft:#3a2320;--warn:#d9a441;--warn-soft:#372c17;--info:#7ea1ec;--info-soft:#1e2a44;
+}}
+:root[data-theme="dark"]{
+  --ground:#14171c;--surface:#1c2028;--surface-alt:#262b34;--ink:#e8ebef;--muted:#a3abb8;
+  --border:#333a44;--border-strong:#454e5a;--accent:#3fbf95;--accent-soft:#17362c;
+  --gap:#e8776a;--gap-soft:#3a2320;--warn:#d9a441;--warn-soft:#372c17;--info:#7ea1ec;--info-soft:#1e2a44;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--font-body);font-size:14px;line-height:1.5}
+button,input,select,textarea{font-family:inherit}
+button{cursor:pointer}
+button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--info);outline-offset:2px}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+.topbar{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;padding:.7rem 1.1rem;background:var(--surface);border-bottom:1px solid var(--border)}
+.brand{font-family:var(--font-display);font-weight:700;font-size:1rem}
+.brand .dot{color:var(--accent)}
+.who{font-size:.82rem;color:var(--muted);margin-left:auto}
+
+/* stepper */
+.stepper{display:flex;align-items:center;gap:.15rem;flex-wrap:nowrap;padding:.55rem 1.1rem;background:var(--surface);
+  border-bottom:1px solid var(--border);overflow-x:auto}
+.stepper button{display:flex;align-items:center;gap:.4rem;background:none;border:none;color:var(--muted);
+  font-size:.8rem;padding:.3rem .55rem;border-radius:7px;white-space:nowrap}
+.stepper button .num{width:20px;height:20px;border-radius:50%;border:1.5px solid currentColor;display:flex;
+  align-items:center;justify-content:center;font-size:.72rem;font-family:var(--font-mono)}
+.stepper button.active{color:var(--ink);background:var(--surface-alt)}
+.stepper button.done{color:var(--accent)}
+.stepper button.done .num{background:var(--accent);border-color:var(--accent);color:#fff}
+.stepper .sep{color:var(--border-strong);flex:0 0 auto}
+
+.wrap{padding:1.2rem;max-width:70rem;margin:0 auto}
+h1.view-h{font-family:var(--font-display);font-size:1.45rem;margin:.1rem 0 .3rem}
+.sub{color:var(--muted);font-size:.86rem;margin:0 0 1.2rem;max-width:44rem}
+
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.1rem}
+.panel+.panel{margin-top:1rem}
+.sect-h{font-family:var(--font-display);font-size:1rem;margin:0 0 .6rem}
+
+.actions{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+.btn{border:1px solid var(--border-strong);background:var(--surface);color:var(--ink);border-radius:8px;
+  padding:.5rem .9rem;font-size:.83rem;font-weight:600}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{opacity:.92}
+.btn.ghost{border-color:transparent;color:var(--muted)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* forms */
+.form{max-width:42rem}
+.field{margin-bottom:.9rem}
+.field>label{display:block;font-size:.74rem;font-weight:600;color:var(--muted);margin-bottom:.3rem;
+  text-transform:uppercase;letter-spacing:.03em}
+.field input,.field select,.field textarea{width:100%;background:var(--ground);color:var(--ink);
+  border:1px solid var(--border-strong);border-radius:8px;padding:.5rem .6rem;font-size:.88rem}
+.field textarea{min-height:3.4rem;resize:vertical}
+.field.two{display:flex;gap:.6rem}
+.field.two>*{flex:1}
+.hint{font-size:.76rem;color:var(--muted);margin-top:.25rem}
+.hint.bad{color:var(--gap)}
+.req{color:var(--gap)}
+
+/* requisition + route */
+.kv{font-size:.85rem;margin:.45rem 0}
+.kv b{display:block;color:var(--muted);font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.4rem 1.4rem}
+@media (max-width:620px){.grid2{grid-template-columns:1fr}}
+.route{list-style:none;padding:0;margin:.4rem 0 0}
+.route li{display:flex;align-items:center;gap:.7rem;padding:.55rem 0;border-bottom:1px solid var(--border);font-size:.86rem}
+.route li:last-child{border:none}
+.route .ic{width:22px;height:22px;border-radius:50%;border:2px solid var(--border-strong);flex:0 0 auto;
+  display:flex;align-items:center;justify-content:center;font-size:.72rem;font-family:var(--font-mono);color:var(--muted)}
+.route .ic.done{background:var(--accent);border-color:var(--accent);color:#fff}
+.route .ic.active{border-color:var(--info);color:var(--info)}
+.route .ic.skip{border-style:dashed}
+.route .st{margin-left:auto;font-size:.76rem;font-family:var(--font-mono);color:var(--muted)}
+
+.statuspill{display:inline-block;font-size:.72rem;font-family:var(--font-mono);border-radius:999px;
+  padding:.15rem .55rem;border:1px solid var(--border-strong);color:var(--muted)}
+.statuspill.ok{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.statuspill.wait{border-color:var(--warn);color:var(--warn);background:var(--warn-soft)}
+
+.queue{list-style:none;padding:0;margin:0}
+.queue li{display:flex;align-items:center;gap:.6rem;padding:.7rem 0;border-bottom:1px solid var(--border);font-size:.87rem}
+.queue li:last-child{border:none}
+.queue .meta{color:var(--muted);font-size:.78rem}
+.queue button{margin-left:auto}
+
+/* funnel summary */
+.fsum{display:flex;gap:.5rem;flex-wrap:wrap}
+.fsum .cell{flex:1;min-width:5rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:9px;padding:.55rem;text-align:center}
+.fsum .n{font-family:var(--font-display);font-size:1.3rem;font-weight:700}
+.fsum .l{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+
+/* board */
+.board{display:flex;gap:.8rem;overflow-x:auto;padding-bottom:.6rem}
+.col{flex:0 0 14.5rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:10px;padding:.6rem}
+.col h2{font-family:var(--font-display);font-size:.8rem;letter-spacing:.02em;text-transform:uppercase;
+  color:var(--muted);margin:.1rem .1rem .6rem;display:flex;justify-content:space-between}
+.col h2 .c{font-family:var(--font-mono);background:var(--surface);border-radius:999px;padding:0 .4rem;color:var(--ink)}
+.cand{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:.6rem;margin-bottom:.5rem;cursor:pointer;transition:border-color .12s}
+.cand:hover{border-color:var(--accent)}
+.cand .top{display:flex;gap:.5rem;align-items:center}
+.ava{width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-size:.72rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.cand .nm{font-weight:600;font-size:.85rem}
+.cand .rl{color:var(--muted);font-size:.76rem;margin:.2rem 0 .4rem}
+.cand .foot{display:flex;justify-content:space-between;align-items:center}
+.days{font-size:.72rem;color:var(--muted);font-family:var(--font-mono)}
+.days.sla{color:var(--gap);font-weight:600}
+.mini{background:var(--surface-alt);border:1px solid var(--border-strong);border-radius:6px;font-size:.72rem;padding:.15rem .45rem;color:var(--ink)}
+.mini:hover{border-color:var(--accent);color:var(--accent)}
+
+/* candidate */
+.cview{display:grid;grid-template-columns:16rem 1fr;gap:1rem}
+@media (max-width:720px){.cview{grid-template-columns:1fr}}
+.tags{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.3rem}
+.tag{font-size:.72rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:999px;padding:.1rem .5rem}
+.tl{list-style:none;margin:.4rem 0 0;padding:0}
+.tl li{display:flex;gap:.6rem;font-size:.82rem;padding:.3rem 0;border-bottom:1px dashed var(--border)}
+.tl li:last-child{border:none}
+.tl .d{font-family:var(--font-mono);color:var(--muted);flex:0 0 4.6rem}
+.pill{display:inline-block;font-size:.72rem;font-family:var(--font-mono);border-radius:999px;padding:.12rem .5rem;border:1px solid var(--border-strong);color:var(--muted)}
+.pill.stage{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.pill.sla{border-color:var(--gap);color:var(--gap);background:var(--gap-soft)}
+.iv{display:flex;align-items:center;gap:.6rem;padding:.5rem 0;border-bottom:1px solid var(--border)}
+.iv:last-of-type{border:none}
+.iv .ava{width:24px;height:24px}
+.iv .nm{font-size:.85rem;font-weight:600}
+.iv .rl{font-size:.74rem;color:var(--muted)}
+.iv .st{margin-left:auto;font-size:.75rem;font-family:var(--font-mono)}
+.st.pending{color:var(--warn)}
+.st.done{color:var(--accent)}
+.rec{font-size:.74rem;font-family:var(--font-mono);border:1px solid var(--border-strong);border-radius:6px;padding:.1rem .4rem}
+.rec.hire{color:var(--accent);border-color:var(--accent)}
+.rec.no{color:var(--gap);border-color:var(--gap)}
+.agg{background:var(--surface-alt);border:1px solid var(--border);border-radius:9px;padding:.7rem;margin:.8rem 0}
+.agg .bars{display:grid;gap:.35rem;margin-top:.4rem}
+.agg .bar{display:grid;grid-template-columns:9rem 1fr 2rem;align-items:center;gap:.5rem;font-size:.78rem}
+.agg .track{background:var(--surface);border-radius:999px;height:8px;overflow:hidden;border:1px solid var(--border)}
+.agg .fill{height:100%;background:var(--accent)}
+.agg .verdict{font-weight:700;font-family:var(--font-display)}
+
+.onboard{background:var(--accent-soft);border:1px solid var(--accent);border-radius:9px;padding:.8rem;margin-top:1rem}
+.onboard h3{margin:0 0 .4rem;font-family:var(--font-display);font-size:.9rem;color:var(--accent)}
+.onboard ul{margin:0;padding-left:1.1rem;font-size:.82rem}
+@media (min-width:560px){.onboard ul{columns:2}}
+
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(10,12,16,.55);display:flex;align-items:center;justify-content:center;padding:1rem;z-index:20}
+.modal{background:var(--surface);border:1px solid var(--border-strong);border-radius:13px;max-width:30rem;width:100%;padding:1.2rem;max-height:90vh;overflow-y:auto}
+.modal h2{font-family:var(--font-display);font-size:1.1rem;margin:0 0 .2rem}
+.modal .msub{color:var(--muted);font-size:.82rem;margin:0 0 1rem}
+.crit{margin:.7rem 0}
+.crit .lab{font-size:.83rem;font-weight:600;margin-bottom:.3rem}
+.scale{display:flex;gap:.4rem}
+.scale label{flex:1;position:relative}
+.scale input{position:absolute;opacity:0}
+.scale span{display:block;text-align:center;border:1px solid var(--border-strong);border-radius:7px;padding:.4rem 0;font-family:var(--font-mono);font-size:.85rem}
+.scale input:checked+span{background:var(--accent);border-color:var(--accent);color:#fff}
+.scale input:focus-visible+span{outline:2px solid var(--info);outline-offset:2px}
+.recpick{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin:.4rem 0}
+.recpick label{position:relative}
+.recpick label span{display:block;text-align:center;border:1px solid var(--border-strong);border-radius:7px;padding:.4rem;font-size:.8rem}
+.recpick input{position:absolute;opacity:0}
+.recpick input:checked+span{background:var(--info);border-color:var(--info);color:#fff}
+.modal textarea{width:100%;border:1px solid var(--border-strong);border-radius:8px;background:var(--ground);color:var(--ink);font-size:.85rem;padding:.5rem;resize:vertical;min-height:3.4rem}
+.modal .foot{display:flex;gap:.5rem;justify-content:flex-end;margin-top:1rem}
+
+#toast{position:fixed;left:50%;bottom:1.3rem;transform:translateX(-50%);background:var(--ink);color:var(--ground);padding:.6rem 1rem;border-radius:9px;font-size:.83rem;max-width:24rem;box-shadow:0 6px 24px rgba(0,0,0,.25);z-index:40}
+
+.note{font-size:.76rem;color:var(--muted);margin:1.4rem auto 2rem;max-width:70rem;padding:0 1.2rem}
+.note code{font-family:var(--font-mono);background:var(--surface-alt);padding:.05rem .3rem;border-radius:4px}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="brand">Кабинет найма<span class="dot">.</span></span>
+  <span class="who" id="who">Роль: нанимающий менеджер · А. Иванова</span>
+</div>
+<nav class="stepper" id="stepper"></nav>
+
+<div class="wrap" id="wrap"></div>
+
+<p class="note">Прототип сквозного флоу <b>от заявки до оффера</b>: 6 экранов, переключаются
+  кнопками действий и шагами сверху. Данные моковые, состояние живёт в памяти вкладки.
+  Демо-путь: заполните заявку → согласуйте оба шага → опубликуйте вакансию → в воронке откройте
+  «Игорь Волков» → соберите фидбэк за двух интервьюеров → «Оформить оффер» → отправьте и отметьте
+  принятым → появится чек-лист онбординга. Разбор логики — в
+  <a href="../Единый_кабинет_найма.html#d01">разборе кейса</a> (вкладки 01 и 04).</p>
+
+<div class="overlay" id="scOverlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="scTitle">
+    <h2 id="scTitle">Scorecard</h2>
+    <p class="msub" id="scSub"></p>
+    <form id="scForm"></form>
+    <div class="foot">
+      <button class="btn" type="button" id="scCancel">Отмена</button>
+      <button class="btn primary" type="submit" form="scForm">Отправить</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" hidden></div>
+
+<script>
+/* ---------- данные ---------- */
+const STEPS=['Заявка','Согласование','Вакансия','Воронка','Кандидат','Оффер'];
+const STAGES=[
+  {id:'new',name:'Новые',sla:3},{id:'screen',name:'Скрининг',sla:4},{id:'interview',name:'Интервью',sla:6},
+  {id:'feedback',name:'Фидбэк',sla:3},{id:'offer',name:'Оффер',sla:5},{id:'hired',name:'Выход',sla:99},
+];
+const CRITERIA=['Hard skills','Проблемное мышление','Коммуникация','Мотивация'];
+const RECS=[['strong_hire','Strong hire'],['hire','Hire'],['no_hire','No hire'],['strong_no','Strong no hire']];
+const recPos=r=>({strong_hire:2,hire:1,no_hire:-1,strong_no:-2}[r]||0);
+const APPROVAL_THRESHOLD=350; // тыс. ₽: выше — подключается C&B
+
+let req={
+  status:'draft',
+  role:'Senior Frontend-разработчик', dept:'Платформа / Web', grade:'Senior',
+  salaryMin:320, salaryMax:380, type:'Замена', headcount:1,
+  reason:'Уход сотрудника в смежную команду. Роль в core-команде, закрытие критично.',
+  profile:'React + TypeScript, 4+ года, опыт продуктовых команд и дизайн-систем, английский B1+.',
+  process:'Скрининг → Техническое интервью → Системное интервью → Финал с HM',
+};
+let route=[];
+let vacancy=null;
+
+let cands=[
+  {id:1,name:'Игорь Волков',role:'Senior Frontend',stage:'feedback',days:4,source:'Реферал',
+   tags:['React','TypeScript','5 лет'],summary:'Тимлид команды из 4 человек в финтехе. Сильная архитектура, ищет продуктовую роль.',
+   timeline:[{d:'12 авг',t:'Добавлен, источник — реферал'},{d:'14 авг',t:'Скрининг пройден'},{d:'20 авг',t:'Техническое интервью'},{d:'27 авг',t:'Системное интервью'}],
+   ivs:[
+     {name:'А. Петров',role:'Tech lead',status:'done',scores:{0:4,1:4,2:3,3:3},rec:'hire',note:'Крепкая архитектура, местами формальная коммуникация.'},
+     {name:'Е. Смирнова',role:'Продакт',status:'pending',scores:{},rec:'',note:''},
+     {name:'Д. Козлов',role:'Frontend',status:'pending',scores:{},rec:'',note:''},
+   ]},
+  {id:2,name:'Марина Дуброва',role:'Middle+ Frontend',stage:'interview',days:7,source:'hh.ru',
+   tags:['Vue','2 года'],summary:'Из аутсорса, хочет продукт. Хорошая база, вопросы к глубине по перфомансу.',
+   timeline:[{d:'18 авг',t:'Отклик с hh.ru'},{d:'19 авг',t:'Скрининг пройден'},{d:'26 авг',t:'Техинтервью назначено'}],
+   ivs:[{name:'А. Петров',role:'Tech lead',status:'pending',scores:{},rec:'',note:''},{name:'Д. Козлов',role:'Frontend',status:'pending',scores:{},rec:'',note:''}]},
+  {id:3,name:'Тимур Асланов',role:'Senior Frontend',stage:'screen',days:2,source:'Сорсинг',
+   tags:['React','Next.js','6 лет'],summary:'Найден сорсингом. Пока не подтвердил интерес к вилке.',
+   timeline:[{d:'29 авг',t:'Первый контакт, сорсинг'}],ivs:[]},
+  {id:4,name:'Ольга Рей',role:'Senior Frontend',stage:'new',days:1,source:'Реферал',
+   tags:['React','дизайн-системы'],summary:'Реферал от А. Петрова. Резюме на первичном просмотре.',
+   timeline:[{d:'01 сен',t:'Добавлена, источник — реферал'}],ivs:[]},
+  {id:5,name:'Павел Гринь',role:'Senior Frontend',stage:'offer',days:2,source:'hh.ru',
+   tags:['Angular','React','7 лет'],summary:'Прошёл все интервью единогласно. Готовим оффер.',
+   timeline:[{d:'05 авг',t:'Отклик'},{d:'08 авг',t:'Скрининг'},{d:'15 авг',t:'Техинтервью'},{d:'22 авг',t:'Финал'},{d:'30 авг',t:'Решение: оффер'}],
+   ivs:[
+     {name:'А. Петров',role:'Tech lead',status:'done',scores:{0:4,1:4,2:4,3:3},rec:'strong_hire',note:'Один из сильнейших за квартал.'},
+     {name:'Е. Смирнова',role:'Продакт',status:'done',scores:{0:3,1:4,2:4,3:4},rec:'hire',note:'Отличная продуктовая чуйка.'},
+   ]},
+];
+let offers={}; // candidateId -> {grade,salary,start,status}
+
+let view='req', openId=null, offerCtx=null;
+
+/* ---------- утилиты ---------- */
+const $=s=>document.querySelector(s);
+const wrap=()=>$('#wrap');
+function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(t._h);t._h=setTimeout(()=>t.hidden=true,4200);}
+function stageIdx(id){return STAGES.findIndex(s=>s.id===id);}
+function initials(n){return n.split(' ').map(w=>w[0]).slice(0,2).join('');}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function feedbackReady(c){return c.ivs.length>0 && c.ivs.every(v=>v.status==='done');}
+function buildRoute(){
+  route=[{who:'Руководитель HM · Д. Соколов',status:'active',kind:'lead'}];
+  if(req.salaryMax>APPROVAL_THRESHOLD)
+    route.push({who:`C&B · вилка ${req.salaryMax}к выше порога ${APPROVAL_THRESHOLD}к`,status:'waiting',kind:'cb'});
+}
+
+/* ---------- роутер / stepper ---------- */
+function stepState(){
+  let f=0;
+  if(req.status==='pending') f=1;
+  else if(req.status==='approved' && !(vacancy&&vacancy.published)) f=2;
+  else if(vacancy&&vacancy.published && !Object.values(offers).some(o=>o.status!=='draft')) f=4;
+  else if(Object.values(offers).some(o=>o.status!=='draft') && !Object.values(offers).some(o=>o.status==='accepted')) f=5;
+  else if(Object.values(offers).some(o=>o.status==='accepted')) f=6;
+  return STEPS.map((_,i)=>i<f);
+}
+const VIEWKEY=['req','approval','vacancy','board','candidate','offer'];
+function renderStepper(){
+  const done=stepState(); const cur=VIEWKEY.indexOf(view==='candidate'&&!openId?'board':view);
+  const el=$('#stepper'); el.innerHTML='';
+  STEPS.forEach((s,i)=>{
+    if(i)el.insertAdjacentHTML('beforeend','<span class="sep">›</span>');
+    const b=document.createElement('button');
+    b.className=(i===cur?'active ':'')+(done[i]?'done':'');
+    b.innerHTML=`<span class="num">${done[i]?'✓':i+1}</span>${s}`;
+    b.addEventListener('click',()=>go(VIEWKEY[i]));
+    el.appendChild(b);
+  });
+}
+function go(v){ if(v==='candidate'&&!openId){v='board';} view=v; render(); window.scrollTo(0,0); }
+function render(){ renderStepper(); ({req:vReq,approval:vApproval,vacancy:vVacancy,board:vBoard,candidate:vCandidate,offer:vOffer}[view])(); }
+function setRole(r){ $('#who').textContent='Роль: '+r; }
+
+/* ---------- 1 · Заявка ---------- */
+function vReq(){
+  setRole('нанимающий менеджер · А. Иванова');
+  const ro=req.status!=='draft';
+  wrap().innerHTML=`
+  <h1 class="view-h">Заявка на вакансию</h1>
+  <p class="sub">Единая точка входа в процесс. Обязательные поля <span class="req">*</span> — чтобы
+    рекрутер и согласующие получили полную картину сразу и не уходили в переписку.
+    ${ro?`<br><span class="statuspill ${req.status==='approved'?'ok':'wait'}">${req.status==='approved'?'согласовано':'на согласовании'}</span>`:''}</p>
+  <form class="form panel" id="reqForm">
+    <div class="field"><label>Должность <span class="req">*</span></label><input name="role" value="${esc(req.role)}" ${ro?'disabled':'required'}></div>
+    <div class="field"><label>Подразделение <span class="req">*</span></label><input name="dept" value="${esc(req.dept)}" ${ro?'disabled':'required'}></div>
+    <div class="field two">
+      <div><label>Грейд <span class="req">*</span></label><select name="grade" ${ro?'disabled':''}>${['Junior','Middle','Senior','Lead'].map(g=>`<option ${g===req.grade?'selected':''}>${g}</option>`).join('')}</select></div>
+      <div><label>Тип найма</label><select name="type" ${ro?'disabled':''}>${['Замена','Рост команды'].map(t=>`<option ${t===req.type?'selected':''}>${t}</option>`).join('')}</select></div>
+    </div>
+    <div class="field two">
+      <div><label>Вилка, тыс. ₽ — от <span class="req">*</span></label><input name="salaryMin" type="number" value="${req.salaryMin}" ${ro?'disabled':'required'}></div>
+      <div><label>до <span class="req">*</span></label><input name="salaryMax" type="number" value="${req.salaryMax}" ${ro?'disabled':'required'}></div>
+      <div><label>Позиций</label><input name="headcount" type="number" value="${req.headcount}" ${ro?'disabled':''}></div>
+    </div>
+    <p class="hint" id="thHint"></p>
+    <div class="field"><label>Обоснование потребности <span class="req">*</span></label><textarea name="reason" ${ro?'disabled':'required'}>${esc(req.reason)}</textarea></div>
+    <div class="field"><label>Профиль и must-have <span class="req">*</span></label><textarea name="profile" ${ro?'disabled':'required'}>${esc(req.profile)}</textarea></div>
+    <div class="field"><label>Процесс интервью</label><input name="process" value="${esc(req.process)}" ${ro?'disabled':''}></div>
+    <div class="actions">
+      ${ro
+        ? `<button class="btn primary" type="button" onclick="go('approval')">К согласованию →</button>`
+        : `<button class="btn primary" type="submit">Отправить на согласование</button>`}
+    </div>
+  </form>`;
+  const upd=()=>{const f=$('#reqForm');const mx=+f.salaryMax.value;
+    $('#thHint').textContent=mx>APPROVAL_THRESHOLD
+      ? `Вилка выше ${APPROVAL_THRESHOLD}к → маршрут: руководитель HM, затем C&B.`
+      : `Вилка в пределах ${APPROVAL_THRESHOLD}к → согласует только руководитель HM.`;};
+  if(!ro){ $('#reqForm').addEventListener('input',upd);
+    $('#reqForm').addEventListener('submit',e=>{
+      e.preventDefault();const f=new FormData(e.target);
+      Object.assign(req,{role:f.get('role'),dept:f.get('dept'),grade:f.get('grade'),type:f.get('type'),
+        salaryMin:+f.get('salaryMin'),salaryMax:+f.get('salaryMax'),headcount:+f.get('headcount')||1,
+        reason:f.get('reason'),profile:f.get('profile'),process:f.get('process'),status:'pending'});
+      buildRoute();
+      toast('Заявка отправлена. Уведомление ушло руководителю HM.');
+      go('approval');
+    });
+  }
+  upd();
+}
+
+/* ---------- 2 · Согласование ---------- */
+function vApproval(){
+  setRole('согласующий · Д. Соколов (рук. HM)');
+  if(req.status==='draft'){ wrap().innerHTML=`<h1 class="view-h">Согласование</h1><p class="sub">Заявка ещё не отправлена. <button class="btn" onclick="go('req')">← к заявке</button></p>`; return; }
+  const allDone=route.every(r=>r.status==='done');
+  wrap().innerHTML=`
+  <h1 class="view-h">Согласование заявки</h1>
+  <p class="sub">Очередь согласующего. Решение — в один клик, с комментарием при отклонении; каждое
+    действие фиксируется. Статус заявки виден автору без переписки.</p>
+
+  <div class="panel">
+    <div style="display:flex;align-items:baseline;gap:.6rem;flex-wrap:wrap">
+      <h2 class="sect-h" style="margin:0">${esc(req.role)}</h2>
+      <span class="statuspill ${req.status==='approved'?'ok':'wait'}">${req.status==='approved'?'согласовано':'на согласовании'}</span>
+    </div>
+    <div class="grid2" style="margin-top:.7rem">
+      <div class="kv"><b>Подразделение</b>${esc(req.dept)}</div>
+      <div class="kv"><b>Грейд · тип</b>${req.grade} · ${req.type}</div>
+      <div class="kv"><b>Вилка</b>${req.salaryMin}–${req.salaryMax} тыс. ₽</div>
+      <div class="kv"><b>Позиций</b>${req.headcount}</div>
+    </div>
+    <div class="kv"><b>Обоснование</b>${esc(req.reason)}</div>
+    <div class="kv"><b>Профиль</b>${esc(req.profile)}</div>
+
+    <h3 class="sect-h" style="margin-top:1rem">Маршрут согласования</h3>
+    <ul class="route">${route.map(r=>`
+      <li><span class="ic ${r.status==='done'?'done':r.status==='active'?'active':r.status==='skip'?'skip':''}">${r.status==='done'?'✓':r.kind==='cb'?'₽':'HM'}</span>
+      <span>${esc(r.who)}</span><span class="st">${({done:'согласовано',active:'ждёт решения',waiting:'в очереди',skip:'не требуется'})[r.status]}</span></li>`).join('')}</ul>
+
+    <div class="actions">
+      ${allDone
+        ? `<button class="btn primary" onclick="go('vacancy')">Открыть карточку вакансии →</button>`
+        : `<button class="btn primary" id="apprBtn">Согласовать текущий шаг</button>
+           <button class="btn" id="rejBtn">Отклонить</button>`}
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3 class="sect-h">Ещё в вашей очереди</h3>
+    <ul class="queue">
+      <li><div><div>QA-инженер</div><div class="meta">С. Орлов (HM) · вилка 180–220к · Middle · рост команды</div></div>
+      <button class="btn" disabled>демо: одна заявка</button></li>
+    </ul>
+  </div>`;
+
+  const ab=$('#apprBtn');
+  if(ab)ab.addEventListener('click',()=>{
+    const i=route.findIndex(r=>r.status==='active');
+    route[i].status='done';
+    const nxt=route.findIndex(r=>r.status==='waiting');
+    if(nxt>-1){ route[nxt].status='active'; toast('Шаг согласован. Заявка ушла к C&B.'); }
+    else{
+      req.status='approved';
+      vacancy={published:false, ...JSON.parse(JSON.stringify(req)),
+        team:['Марина К. — рекрутер','А. Иванова — нанимающий менеджер','А. Петров, Е. Смирнова, Д. Козлов — интервьюеры']};
+      toast('Заявка полностью согласована → создана карточка вакансии.');
+    }
+    render();
+  });
+  const rb=$('#rejBtn');
+  if(rb)rb.addEventListener('click',()=>{
+    const why=prompt('Причина отклонения (вернётся автору):','Нужно уточнить обоснование замены');
+    if(why===null)return;
+    req.status='draft'; toast('Заявка отклонена и возвращена автору: «'+why+'»'); go('req');
+  });
+}
+
+/* ---------- 3 · Карточка вакансии ---------- */
+function vVacancy(){
+  setRole('рекрутер · Марина К.');
+  if(!vacancy){ wrap().innerHTML=`<h1 class="view-h">Карточка вакансии</h1><p class="sub">Появится после согласования заявки. <button class="btn" onclick="go('approval')">← к согласованию</button></p>`; return; }
+  const counts=STAGES.map(s=>({name:s.name,n:cands.filter(c=>c.stage===s.id).length}));
+  wrap().innerHTML=`
+  <h1 class="view-h">${esc(vacancy.role)}</h1>
+  <p class="sub">Карточка создана из согласованной заявки — данные перенесены без повторного ввода.
+    Один объект со статусом, к которому крепятся воронка, интервью и оффер.</p>
+
+  <div class="panel">
+    <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center">
+      <span class="statuspill ${vacancy.published?'ok':'wait'}">${vacancy.published?'опубликована':'черновик'}</span>
+      <span class="pill">заявка #REQ-1042 · согласована</span>
+    </div>
+    <div class="grid2" style="margin-top:.8rem">
+      <div class="kv"><b>Подразделение</b>${esc(vacancy.dept)}</div>
+      <div class="kv"><b>Грейд · тип</b>${vacancy.grade} · ${vacancy.type}</div>
+      <div class="kv"><b>Согласованная вилка</b>${vacancy.salaryMin}–${vacancy.salaryMax} тыс. ₽</div>
+      <div class="kv"><b>Позиций</b>${vacancy.headcount}</div>
+    </div>
+    <div class="kv"><b>Профиль</b>${esc(vacancy.profile)}</div>
+    <div class="kv"><b>Процесс</b>${esc(vacancy.process)}</div>
+    <div class="kv"><b>Команда найма</b>${vacancy.team.map(esc).join(' · ')}</div>
+  </div>
+
+  <div class="panel">
+    <h3 class="sect-h">Воронка — сводка</h3>
+    <div class="fsum">${counts.map(c=>`<div class="cell"><div class="n">${c.n}</div><div class="l">${c.name}</div></div>`).join('')}</div>
+    <div class="actions">
+      ${vacancy.published?'':'<button class="btn primary" id="pubBtn">Опубликовать вакансию</button>'}
+      <button class="btn ${vacancy.published?'primary':''}" onclick="go('board')">Открыть воронку →</button>
+    </div>
+  </div>`;
+  const pb=$('#pubBtn');
+  if(pb)pb.addEventListener('click',()=>{ vacancy.published=true; toast('Вакансия опубликована. Отклики попадают в этап «Новые».'); render(); });
+}
+
+/* ---------- 4 · Воронка ---------- */
+function vBoard(){
+  setRole('рекрутер · Марина К.');
+  const active=cands.filter(c=>c.stage!=='hired').length;
+  wrap().innerHTML=`
+  <h1 class="view-h">Воронка · ${vacancy?esc(vacancy.role):'Senior Frontend-разработчик'}</h1>
+  <p class="sub">${active} кандидатов в работе. Доска общая для рекрутера и нанимающего менеджера;
+    «завис» — превышен SLA этапа. Клик по карточке — кандидат.</p>
+  <div class="board" id="board"></div>`;
+  const b=$('#board');
+  STAGES.forEach(st=>{
+    const list=cands.filter(c=>c.stage===st.id);
+    const col=document.createElement('div');col.className='col';
+    col.innerHTML=`<h2>${st.name}<span class="c">${list.length}</span></h2>`;
+    list.forEach(c=>{
+      const sla=c.days>st.sla;
+      const card=document.createElement('div');card.className='cand';card.tabIndex=0;card.setAttribute('role','button');
+      card.innerHTML=`
+        <div class="top"><span class="ava">${initials(c.name)}</span><span class="nm">${esc(c.name)}</span></div>
+        <div class="rl">${esc(c.role)} · ${esc(c.source)}</div>
+        <div class="foot"><span class="days ${sla?'sla':''}">${sla?'завис '+c.days+' д':c.days+' дн'}</span>
+        ${st.id!=='hired'?`<button class="mini" data-adv="${c.id}">→ этап</button>`:''}</div>`;
+      card.addEventListener('click',e=>{ if(e.target.dataset.adv)return; openCand(c.id); });
+      card.addEventListener('keydown',e=>{ if(e.key==='Enter')openCand(c.id); });
+      col.appendChild(card);
+    });
+    b.appendChild(col);
+  });
+  b.querySelectorAll('[data-adv]').forEach(btn=>btn.addEventListener('click',()=>advance(+btn.dataset.adv)));
+}
+function advance(id){
+  const c=cands.find(x=>x.id===id);const i=stageIdx(c.stage);
+  if(i>=STAGES.length-1)return;
+  if(STAGES[i+1].id==='offer'){
+    if(!feedbackReady(c)){ toast('Нельзя перевести на оффер: не собран фидбэк интервью (правило S3.5)'); return; }
+    openCand(id); go('offer'); return;
+  }
+  c.stage=STAGES[i+1].id; c.days=0;
+  c.timeline.push({d:'сегодня',t:'Переведён на этап «'+STAGES[i+1].name+'»'});
+  toast(c.name+' → этап «'+STAGES[i+1].name+'»');
+  render();
+}
+
+/* ---------- 5 · Кандидат ---------- */
+function openCand(id){ openId=id; view='candidate'; render(); window.scrollTo(0,0); }
+function aggregate(c){
+  const done=c.ivs.filter(v=>v.status==='done'); if(!done.length)return null;
+  const avg=CRITERIA.map((_,ci)=>{const v=done.map(x=>x.scores[ci]).filter(Boolean);return v.reduce((a,b)=>a+b,0)/v.length;});
+  const s=done.reduce((a,v)=>a+recPos(v.rec),0);
+  return {avg,verdict:s>=2?'Hire':s<=-1?'No hire':'Смешанный сигнал',done:done.length,total:c.ivs.length};
+}
+function vCandidate(){
+  setRole('рекрутер · Марина К.');
+  const c=cands.find(x=>x.id===openId);
+  if(!c){ go('board'); return; }
+  const st=STAGES[stageIdx(c.stage)]; const sla=c.days>st.sla; const agg=aggregate(c);
+  const nextName=stageIdx(c.stage)<STAGES.length-1?STAGES[stageIdx(c.stage)+1].name:null;
+  wrap().innerHTML=`
+  <p class="sub"><button class="btn ghost" onclick="go('board')">← Воронка</button> / Карточка кандидата</p>
+  <div class="cview">
+    <aside class="panel">
+      <div class="kv"><b>Кандидат</b>${esc(c.name)}</div>
+      <div class="kv"><b>Роль</b>${esc(c.role)}</div>
+      <div class="kv"><b>Источник</b>${esc(c.source)}</div>
+      <div class="kv"><b>Контакты</b>${c.name.split(' ')[0].toLowerCase()}@example.com · +7 900 ···</div>
+      <div class="kv"><b>Теги</b><div class="tags">${c.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div></div>
+      <div class="kv"><b>Резюме кратко</b>${esc(c.summary)}</div>
+    </aside>
+    <main>
+      <div class="panel">
+        <h1 class="view-h" style="margin-top:0">${esc(c.name)}</h1>
+        <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+          <span class="pill stage">${st.name}</span><span class="pill">${c.days} дн на этапе</span>
+          ${sla?`<span class="pill sla">SLA ${st.sla}д превышен</span>`:''}
+        </div>
+        <h3 class="sect-h" style="margin-top:1rem">История</h3>
+        <ul class="tl">${c.timeline.map(e=>`<li><span class="d">${e.d}</span><span>${esc(e.t)}</span></li>`).join('')}</ul>
+      </div>
+      <div class="panel">
+        <h3 class="sect-h">Фидбэк интервью</h3>
+        ${c.ivs.length?c.ivs.map((v,i)=>`
+          <div class="iv"><span class="ava">${initials(v.name)}</span>
+          <div><div class="nm">${esc(v.name)}</div><div class="rl">${esc(v.role)}</div></div>
+          ${v.status==='done'
+            ?`<span class="rec ${recPos(v.rec)>0?'hire':'no'}">${RECS.find(r=>r[0]===v.rec)[1]}</span><span class="st done">готов</span>`
+            :`<span class="st pending">ожидается</span><button class="mini" data-score="${i}">Оценить</button>`}
+          </div>`).join(''):`<p style="color:var(--muted);font-size:.85rem">Интервью ещё не проводились.</p>`}
+        ${agg?`<div class="agg">
+          <div>Агрегат · <span class="verdict">${agg.verdict}</span>
+          <span style="color:var(--muted);font-size:.8rem">(${agg.done} из ${agg.total} интервьюеров)</span></div>
+          <div class="bars">${CRITERIA.map((cr,ci)=>`<div class="bar"><span>${cr}</span>
+            <span class="track"><span class="fill" style="width:${(agg.avg[ci]/4*100)||0}%"></span></span>
+            <span>${agg.avg[ci]?agg.avg[ci].toFixed(1):'—'}</span></div>`).join('')}</div>
+        </div>`:''}
+        <div class="actions">
+          ${c.ivs.some(v=>v.status==='pending')?`<button class="btn" id="reqFb">Запросить фидбэк</button>`:''}
+          ${nextName&&nextName!=='Оффер'&&c.stage!=='hired'?`<button class="btn" id="toNext">Перевести на «${nextName}»</button>`:''}
+          ${['feedback','offer'].includes(c.stage)
+            ? `<button class="btn primary" id="toOffer" ${feedbackReady(c)?'':'disabled'}>Оформить оффер →</button>`
+            : ''}
+        </div>
+        ${['feedback','offer'].includes(c.stage)&&!feedbackReady(c)?`<p class="hint bad">Оффер откроется, когда все интервьюеры сдадут scorecard.</p>`:''}
+        ${c.onboard?onboardBlock(c):''}
+      </div>
+    </main>
+  </div>`;
+  const fb=$('#reqFb'); if(fb)fb.addEventListener('click',()=>toast('Запрос фидбэка отправлен интервьюерам, напоминание — через 24 ч'));
+  const tn=$('#toNext'); if(tn)tn.addEventListener('click',()=>advance(c.id));
+  const to=$('#toOffer'); if(to)to.addEventListener('click',()=>{ offerCtx=c.id; go('offer'); });
+  document.querySelectorAll('[data-score]').forEach(b=>b.addEventListener('click',()=>openScore(c.id,+b.dataset.score)));
+}
+function onboardBlock(c){return `<div class="onboard"><h3>✓ Чек-лист онбординга создан — ${esc(c.name)}</h3>
+  <ul><li>Завести учётную запись (IT)</li><li>Выдать ноутбук и периферию</li><li>Доступы: репозитории, CI, трекер</li>
+  <li>Пропуск и рабочее место</li><li>Кадровые документы (HRBP)</li><li>Назначить бадди</li>
+  <li>План на первую неделю от HM</li><li>Welcome-встреча команды</li></ul></div>`;}
+
+/* scorecard modal */
+let scCtx=null;
+function openScore(cid,ivi){
+  scCtx={cid,ivi}; const c=cands.find(x=>x.id===cid); const v=c.ivs[ivi];
+  $('#scSub').textContent=`${c.name} · оценивает ${v.name} (${v.role})`;
+  $('#scForm').innerHTML=CRITERIA.map((cr,ci)=>`<div class="crit"><div class="lab">${cr}</div><div class="scale">
+    ${[1,2,3,4].map(n=>`<label><input type="radio" name="c${ci}" value="${n}" required><span>${n}</span></label>`).join('')}</div></div>`).join('')
+    +`<div class="crit"><div class="lab">Итоговая рекомендация</div><div class="recpick">
+      ${RECS.map(r=>`<label><input type="radio" name="rec" value="${r[0]}" required><span>${r[1]}</span></label>`).join('')}</div></div>
+    <div class="crit"><div class="lab">Комментарий</div><textarea name="note" placeholder="Коротко: сильные стороны, риски"></textarea></div>`;
+  $('#scOverlay').hidden=false;
+}
+$('#scForm').addEventListener('submit',e=>{
+  e.preventDefault(); const fd=new FormData(e.target);
+  const c=cands.find(x=>x.id===scCtx.cid); const v=c.ivs[scCtx.ivi];
+  CRITERIA.forEach((_,ci)=>v.scores[ci]=+fd.get('c'+ci));
+  v.rec=fd.get('rec'); v.note=fd.get('note'); v.status='done';
+  c.timeline.push({d:'сегодня',t:v.name+' заполнил scorecard'});
+  $('#scOverlay').hidden=true; toast('Scorecard принят. Агрегат по кандидату обновлён.'); render();
+});
+$('#scCancel').addEventListener('click',()=>$('#scOverlay').hidden=true);
+document.addEventListener('keydown',e=>{ if(e.key==='Escape')$('#scOverlay').hidden=true; });
+
+/* ---------- 6 · Оффер ---------- */
+function vOffer(){
+  setRole('рекрутер · Марина К.');
+  const c=cands.find(x=>x.id===offerCtx) || cands.find(c=>c.stage==='offer') || cands.find(c=>feedbackReady(c));
+  if(!c){ wrap().innerHTML=`<h1 class="view-h">Оффер</h1><p class="sub">Нет кандидата, готового к офферу. Соберите фидбэк в карточке кандидата. <button class="btn" onclick="go('board')">← Воронка</button></p>`; return; }
+  offerCtx=c.id;
+  const o=offers[c.id] || (offers[c.id]={grade:(vacancy?vacancy.grade:req.grade),salary:(vacancy?vacancy.salaryMax:req.salaryMax),start:'',cb:false,status:'draft'});
+  const cap=vacancy?vacancy.salaryMax:req.salaryMax;
+  const over=o.salary>cap;
+  wrap().innerHTML=`
+  <h1 class="view-h">Оффер — ${esc(c.name)}</h1>
+  <p class="sub">Условия в рамках согласованной вилки. Выход за неё требует повторного согласования
+    C&B — прототип это подсвечивает и блокирует отправку.</p>
+  <div class="cview">
+    <aside class="panel">
+      <div class="kv"><b>Кандидат</b>${esc(c.name)} · ${esc(c.role)}</div>
+      <div class="kv"><b>Агрегат интервью</b>${(()=>{const a=aggregate(c);return a?a.verdict+` (${a.done}/${a.total})`:'—';})()}</div>
+      <div class="kv"><b>Согласованная вилка</b>${vacancy?vacancy.salaryMin:req.salaryMin}–${cap} тыс. ₽</div>
+      <div class="kv"><b>Статус оффера</b><span class="statuspill ${o.status==='accepted'?'ok':o.status==='sent'?'wait':''}">${({draft:'черновик',sent:'направлен кандидату',accepted:'принят'})[o.status]}</span></div>
+    </aside>
+    <main class="panel">
+      <form class="form" id="offForm">
+        <div class="field two">
+          <div><label>Грейд</label><select name="grade" ${o.status!=='draft'?'disabled':''}>${['Junior','Middle','Senior','Lead'].map(g=>`<option ${g===o.grade?'selected':''}>${g}</option>`).join('')}</select></div>
+          <div><label>Оклад, тыс. ₽</label><input name="salary" type="number" value="${o.salary}" ${o.status!=='draft'?'disabled':''}></div>
+        </div>
+        <p class="hint ${over?'bad':''}">${over?`Выше согласованной вилки (${cap}к) — нужна виза C&B.`:`В пределах вилки.`}</p>
+        <div class="field"><label>Дата выхода</label><input name="start" type="date" value="${o.start}" ${o.status!=='draft'?'disabled':''}></div>
+        <label style="display:flex;gap:.5rem;align-items:center;font-size:.85rem;margin:.4rem 0">
+          <input type="checkbox" name="cb" ${o.cb?'checked':''} ${o.status!=='draft'?'disabled':''}> Условия согласованы с C&amp;B</label>
+        <div class="actions">
+          ${o.status==='draft'?`<button class="btn primary" type="submit" ${over&&!o.cb?'disabled':''}>Отправить оффер кандидату</button>`:''}
+          ${o.status==='sent'?`<button class="btn primary" type="button" id="accBtn">Отметить принятым</button>
+            <button class="btn" type="button" id="declBtn">Кандидат отказался</button>`:''}
+          ${o.status==='accepted'?`<button class="btn" type="button" onclick="openCand(${c.id})">К карточке кандидата →</button>`:''}
+        </div>
+      </form>
+      ${o.status==='accepted'?onboardBlock(c):''}
+    </main>
+  </div>`;
+  const f=$('#offForm');
+  f.addEventListener('input',()=>{
+    o.grade=f.grade.value; o.salary=+f.salary.value; o.start=f.start.value; o.cb=f.cb.checked;
+    const isOver=o.salary>cap;
+    const h=f.querySelector('.hint');
+    h.textContent=isOver?`Выше согласованной вилки (${cap}к) — нужна виза C&B.`:`В пределах вилки.`;
+    h.classList.toggle('bad',isOver);
+    const sub=f.querySelector('button[type="submit"]');
+    if(sub) sub.disabled = isOver && !o.cb;
+  });
+  f.addEventListener('submit',e=>{
+    e.preventDefault();
+    o.status='sent'; if(c.stage!=='offer'){c.stage='offer';c.days=0;}
+    c.timeline.push({d:'сегодня',t:`Оффер направлен: ${o.grade}, ${o.salary}к`});
+    toast('Оффер отправлен кандидату.'); render();
+  });
+  const acc=$('#accBtn');
+  if(acc)acc.addEventListener('click',()=>{
+    o.status='accepted'; c.stage='hired'; c.days=0; c.onboard=true;
+    c.timeline.push({d:'сегодня',t:'Оффер принят · автоматически создан чек-лист онбординга'});
+    toast('Оффер принят. Статус запустил чек-лист онбординга: 8 задач на IT, доступы, рабочее место, HRBP.');
+    render();
+  });
+  const dec=$('#declBtn');
+  if(dec)dec.addEventListener('click',()=>{ o.status='draft'; toast('Отмечено: кандидат отказался. Оффер вернулся в черновик.'); render(); });
+}
+
+render();
+</script>
+</body>
+</html>
